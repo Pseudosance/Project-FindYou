@@ -11,6 +11,8 @@ list to invite friends to an event/group.
 
 TEAM MEMBERS:
 
-Steven Beck
-Mitchell Binning
+Steven Beck,
+
+Mitchell Binning,
+
 Amy Drafahl
