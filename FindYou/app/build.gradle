@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "group.csm117.findyou"
+        minSdkVersion 17
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        debug{
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        encoding "UTF-8"
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:22.1.1'
+    //compile 'com.google.android.gms:play-services:7.3.0'
+    // Google Play Services
+    compile 'com.google.android.gms:play-services:7.3.0'
+
+    // Support Libraries
+    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:cardview-v7:22.1.1'
+    compile 'com.android.support:gridlayout-v7:22.1.1'
+    compile 'com.android.support:leanback-v17:22.1.1'
+    compile 'com.android.support:mediarouter-v7:22.1.1'
+    compile 'com.android.support:palette-v7:22.1.1'
+    compile 'com.android.support:recyclerview-v7:22.1.1'
+    compile 'com.android.support:support-annotations:22.1.1'
+    compile 'com.android.support:support-v13:22.1.1'
+    compile 'com.android.support:support-v4:22.1.1'
+
+    compile files('libs/Parse-1.9.1.jar')
+    compile files('libs/bolts-android-1.2.0.jar')
+}
