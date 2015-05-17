@@ -29,7 +29,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -204,7 +203,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                 selectedPostObjectId = item.getObjectId();
                 mapFragment.getMap().animateCamera(
                         CameraUpdateFactory.newLatLng(new LatLng(item.getLocation().getLatitude(), item
-                                .getLocation().getLongitude())), new CancelableCallback() {
+                                .getLocation().getLongitude())), new GoogleMap.CancelableCallback() {
                             public void onFinish() {
                                 Marker marker = mapMarkers.get(item.getObjectId());
                                 if (marker != null) {
@@ -306,6 +305,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         // Query for the latest data to update the views.
         doMapQuery();
         doListQuery();
+
     }
 
     /*
@@ -351,6 +351,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                 }
                 break;
         }
+
     }
 
     /*
@@ -381,6 +382,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
             }
             return false;
         }
+
     }
 
     /*
@@ -393,6 +395,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         }
         currentLocation = getLocation();
         startPeriodicUpdates();
+
     }
 
     /*
@@ -402,6 +405,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         if (Application.APPDEBUG) {
             Log.d("Disconnect locServices", Application.APPTAG);
         }
+
     }
 
     @Override
@@ -432,6 +436,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
             // If no resolution is available, display a dialog to the user with the error.
             showErrorDialog(connectionResult.getErrorCode());
         }
+
     }
 
     /*
@@ -456,6 +461,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         updateCircle(myLatLng);
         doMapQuery();
         doListQuery();
+
     }
 
     /*
@@ -463,7 +469,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
        */
     private void startPeriodicUpdates() {
         LocationServices.FusedLocationApi.requestLocationUpdates(
-                locationClient, locationRequest, this);
+              locationClient, locationRequest, this);
     }
 
     /*
@@ -484,6 +490,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         } else {
             return null;
         }
+
     }
 
     /*
@@ -512,6 +519,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         if (myLoc != null) {
             postsQueryAdapter.loadObjects();
         }
+
     }
 
     private void doMapQuery() {
@@ -612,6 +620,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
             }
 
         });
+
     }
 
     /*
@@ -631,6 +640,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         mapCircle.setCenter(myLatLng);
         mapCircle.setRadius(radius * METERS_PER_FEET); // Convert radius in feet to meters.
     }
+
     /*
        * Zooms the map to show the area of interest based on the search radius
        */
