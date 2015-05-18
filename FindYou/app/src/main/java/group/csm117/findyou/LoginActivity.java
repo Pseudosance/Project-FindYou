@@ -129,14 +129,14 @@ public class LoginActivity extends Activity {
                     Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
                 } else if (user.isNew()) {
                     Log.d("MyApp", "User signed up and logged in through Facebook!");
-                    //Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
-                    //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    //startActivity(intent);
+                    Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                 } else {
                     Log.d("MyApp", "User logged in through Facebook!");
-                   // Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
-                    //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    //startActivity(intent);
+                    Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                 }
             }
         });

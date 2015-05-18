@@ -50,17 +50,18 @@
                 android:paddingRight="32dp"
                 android:text="@string/login"/>
 
+            <Button
+                android:id="@+id/facebook_login"
+                android:layout_width="335dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="@string/facebook_login"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
         </LinearLayout>
 
     </ScrollView>
 
-    <Button
-        android:id="@+id/facebook_login"
-        android:layout_width="335dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:text="@string/facebook_login"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+
 
 </RelativeLayout>
