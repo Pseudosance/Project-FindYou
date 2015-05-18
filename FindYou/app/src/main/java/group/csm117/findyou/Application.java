@@ -3,7 +3,9 @@ package group.csm117.findyou;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.facebook.FacebookSdk;
 import com.parse.Parse;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 
 /**
@@ -27,9 +29,10 @@ public class Application extends android.app.Application {
     @Override
     public void onCreate(){
         super.onCreate();
-
+        FacebookSdk.sdkInitialize(getApplicationContext());
         ParseObject.registerSubclass(FindYouPost.class);
         Parse.initialize(this, "WyyPQ72c4Qk0U47BrnlrXCgXWVItNloBG94bqSzH", "6flz6M11tkjFpZVeDPFaGGE1cUmPoleMMrfxHKQh");
+        ParseFacebookUtils.initialize(this);
 
         preferences = getSharedPreferences("group.csm117.findyou", Context.MODE_PRIVATE);
 
