@@ -25,29 +25,33 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/login"
-        android:layout_below="@+id/picview"
-        android:layout_alignRight="@+id/picview"
-        android:layout_alignEnd="@+id/picview"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        style="@style/com_facebook_button" />
+        android:layout_below="@id/picview"
+        android:weightSum="2">
 
-    <Button
-        android:id="@+id/signup_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/signup"
-        style="@style/com_facebook_button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignRight="@+id/login_button"
-        android:layout_alignEnd="@+id/login_button" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/button_height"
+            android:text="Register"
+            android:id="@+id/signup_button"
+            android:layout_weight="1"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/primary_button"
+            style="@style/button_style" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/button_height"
+            android:text="Log in"
+            android:id="@+id/login_button"
+            android:layout_marginLeft="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/secondary_button"
+            style="@style/button_style" />
+    </LinearLayout>
 
 
 </RelativeLayout>

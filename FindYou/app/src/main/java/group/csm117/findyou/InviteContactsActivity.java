@@ -2,21 +2,23 @@ package group.csm117.findyou;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class InviteContactsActivity extends Activity {
+public class InviteContactsActivity extends Activity implements AbsListView.OnScrollListener {
+
+    List user_friends;
+    ListView lvFriends;
+    User_friendListAdapterWithCache adapterFriends;
+
+    private boolean lvBusy = false;
 
     /** Called when the activity is first created. */
-    ListView list;
+   /* ListView list;
     private List<String> List_file;
 
     private void CreateListView()
@@ -35,40 +37,70 @@ public class InviteContactsActivity extends Activity {
             {
                 //args2 is the listViews Selected index
                 // Send Invite
+
+                Log.d("MyApp", "User clicked on list item!");
+
             }
         });
     }
-
+*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invite_contacts);
 
-        List_file = new ArrayList<String>();
+        /*List_file = new ArrayList<String>();
         list = (ListView)findViewById(R.id.listview);
 
-        CreateListView();
-    }
+        CreateListView();*/
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_invite_contacts, menu);
-        return true;
-    }
+        // populate data
+        user_friends = new ArrayList();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        user_friends.add(new User_friend("Orange", "http://farm5.staticflickr.com/4142/4787427683_3672f1db9a_s.jpg"));
+        user_friends.add(new User_friend("Apple", "http://farm4.staticflickr.com/3139/2780642603_8d2c90e364_s.jpg"));
+        user_friends.add(new User_friend("Pineapple", "http://farm2.staticflickr.com/1008/1420343003_13eeb0f9f3_s.jpg"));
+
+        // JSONArray rows = .... // Data parsed from server
+/*
+        try {
+            for(int i=0; i<rows.length(); i++){
+                JSONObject e = rows.getJSONObject(i);
+
+                user_friends.add(new User_friend(e.optString("name"), e.optString("img_url")));
+            }
+        } catch (JSONException e) {
+            Log.e("Error", "json " +e.toString());
         }
+*/
+        lvFriends = (ListView) findViewById( R.id.listview);
+        adapterFriends = new User_friendListAdapterWithCache(this, user_friends);
+        lvFriends.setAdapter(adapterFriends);
 
-        return super.onOptionsItemSelected(item);
     }
+
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+    }
+
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        switch (scrollState) {
+            case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
+                lvBusy = false;
+                adapterFriends.notifyDataSetChanged();
+                break;
+            case AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+                lvBusy = true;
+                break;
+            case AbsListView.OnScrollListener.SCROLL_STATE_FLING:
+                lvBusy = true;
+                break;
+        }
+    }
+
+
+    public boolean isLvBusy(){
+        return lvBusy;
+    }
+
 }
