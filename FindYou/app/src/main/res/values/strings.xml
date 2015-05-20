@@ -25,8 +25,8 @@
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
     <string name="title_activity_welcome">WelcomeActivity</string>
-    <string name="facebook_login">Facebook Login</string>
-    <string name="facebook_signup">Facebook Sign Up</string>
+    <string name="facebook_login">Log in with Facebook</string>
+    <string name="facebook_signup">Sign up with Facebook</string>
     <string name="title_activity_invite_contacts">InviteContactsActivity</string>
     <string name="invite_contacts_contentDescription">invite contacts title image</string>
 </resources>

@@ -1,87 +1,134 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="group.csm117.findyou.SignUpActivity">
+    android:padding="@dimen/activity_horizontal_margin"
+    android:background="@color/background">
 
-    <!-- Login Form -->
-
-    <ScrollView
-        android:id="@+id/signup_form"
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="@dimen/button_height"
+        android:text="@string/facebook_signup"
+        android:id="@+id/facebook_signup_button"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/layer_fb_button"
+        style="@style/button_style"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp">
 
         <LinearLayout
-            style="@style/LoginFormContainer"
-            android:orientation="vertical"
-            android:weightSum="1">
-
-            <EditText
-                android:id="@+id/username_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_username"
-                android:inputType="textEmailAddress"
-                android:maxLines="1"
-                android:singleLine="true" />
-
-            <EditText
-                android:id="@+id/password_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_password"
-                android:inputType="textPassword"
-                android:maxLines="1"
-                android:singleLine="true" />
-
-            <EditText
-                android:id="@+id/password_again_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_password_again"
-                android:inputType="textPassword"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:imeActionId="@+id/edittext_action_signup"
-                android:imeActionLabel="@string/signup"
-                android:imeOptions="actionUnspecified" />
-
-            <Button
-                android:id="@+id/action_button"
-                android:layout_width="323dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="16dp"
-                android:paddingLeft="32dp"
-                android:paddingRight="32dp"
-                android:text="@string/signup"
-                style="@style/com_facebook_button" />
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/textbox_height"
+            android:background="#FFF">
 
             <TextView
-                android:layout_width="41dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="OR"
-                android:id="@+id/or_textview"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="25dp"
-                android:paddingBottom="15dp" />
+                android:id="@+id/emailLabel"
+                android:text="@string/prompt_username"
+                android:layout_marginLeft="20dp"
+                android:layout_gravity="center_vertical"
+                />
 
-            <Button
-                android:id="@+id/facebook_signup_button"
+            <EditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@string/facebook_signup"
-                android:paddingLeft="32dp"
-                android:paddingRight="32dp"
-                android:layout_marginTop="16dp"
-                style="@style/com_facebook_button_share" />
+                android:inputType="textEmailAddress"
+                android:ems="10"
+                android:id="@+id/username_edit_text"
+                android:layout_gravity="center_horizontal"
+                android:background="#00000000">
+
+                <requestFocus></requestFocus>
+            </EditText>
 
         </LinearLayout>
 
-    </ScrollView>
-</RelativeLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#eee"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/textbox_height"
+            android:background="#FFF">
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/passwordLabel"
+                android:text="@string/prompt_password"
+                android:layout_marginLeft="20dp"
+                android:layout_gravity="center_vertical"
+                />
+
+            <EditText
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:ems="10"
+                android:id="@+id/password_edit_text"
+                android:layout_toRightOf="@id/passwordLabel"
+                android:layout_gravity="fill_horizontal"
+                android:layout_weight="1"
+                android:background="#00000000"
+                />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#eee"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/textbox_height"
+            android:background="#FFF">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/passwordLabelagain"
+                android:text="@string/prompt_password_again"
+                android:layout_marginLeft="20dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.14" />
+
+            <EditText
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:ems="10"
+                android:id="@+id/password_again_edit_text"
+                android:layout_toRightOf="@id/passwordLabel"
+                android:layout_gravity="fill_horizontal"
+                android:layout_weight="1"
+                android:background="#00000000"
+                android:imeActionId="@+id/edittext_action_signup"
+                android:imeActionLabel="@string/signup"
+                android:imeOptions="actionUnspecified"
+                />
+
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:text="@string/signup"
+            android:id="@+id/action_button"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/primary_button"
+            style="@style/button_style"
+            />
+
+    </LinearLayout>
+
+
+</LinearLayout>
