@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Pseudosance/Project-FindYou.svg?branch=Mitchell)](https://travis-ci.org/Pseudosance/Project-FindYou)
+
 # Project Find-You
 Group project for UCLA CS M117
 
