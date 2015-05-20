@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_color">#009688</color>
+    <color name="primary_color_dark">#004D40</color>
+    <color name="secondary_color">#FF3D00</color>
+    <color name="secondary_color_dark">#DD2C00</color>
+    <color name="fb_blue">#3B579D</color>
+    <color name="fb_blue_pressed">#21335B</color>
+    <color name="success_message">#FAD4CD</color>
+    <color name="error_message">#A5D6A7</color>
+    <color name="background">#FF2CC4CE</color>
+</resources>
