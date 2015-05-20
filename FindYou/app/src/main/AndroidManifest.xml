@@ -77,6 +77,10 @@
             android:name=".InviteContactsActivity"
             android:label="@string/title_activity_invite_contacts" >
         </activity>
+        <activity
+            android:name=".EventListActivity"
+            android:label="@string/title_event_list" >
+        </activity>
     </application>
 
 </manifest>
