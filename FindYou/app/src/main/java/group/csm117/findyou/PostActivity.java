@@ -1,35 +1,46 @@
 package group.csm117.findyou;
 
+
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-
-import com.parse.ParseACL;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
+import android.app.ProgressDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
+import com.parse.ParseACL;
 import com.parse.SaveCallback;
+
+import java.util.ArrayList;
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
 public class PostActivity extends Activity {
   // UI references.
+  //private SupportMapFragment mapFragment;
   private EditText postEditText;
   private TextView characterCountTextView;
   private Button postButton;
+  private ArrayList<String> users;
 
   private int maxCharacterCount = Application.getConfigHelper().getPostMaxCharacterCount();
   private ParseGeoPoint geoPoint;
+  private String event;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +49,7 @@ public class PostActivity extends Activity {
     setContentView(R.layout.activity_post);
 
     Intent intent = getIntent();
+    event = (String) intent.getExtras().getString("event");
     Location location = intent.getParcelableExtra(Application.INTENT_EXTRA_LOCATION);
     geoPoint = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
 
@@ -69,6 +81,8 @@ public class PostActivity extends Activity {
 
     updatePostButtonState();
     updateCharacterCountTextViewText();
+
+
   }
 
   private void post () {
@@ -76,20 +90,29 @@ public class PostActivity extends Activity {
 
     // Set up a progress dialog
     final ProgressDialog dialog = new ProgressDialog(PostActivity.this);
-    dialog.setMessage(getString(R.string.progress_post));
+    dialog.setMessage("Creating Detail...");
     dialog.show();
 
     // Create a post.
     AnywallPost post = new AnywallPost();
 
     // Set the location to the current user's location
+
+    users = getIntent().getStringArrayListExtra("users");
+    post.setUsersThatCanSee(users);
     post.setLocation(geoPoint);
+    if (event == null)
+      post.setEvent("DETAIL");
+    else post.setEvent(event);
+    post.setTitle("DETAIL");
     post.setText(text);
+    post.setDraggable(true);
     post.setUser(ParseUser.getCurrentUser());
     ParseACL acl = new ParseACL();
 
-    // Give public read access
+    // Give public access
     acl.setPublicReadAccess(true);
+    acl.setPublicWriteAccess(true);
     post.setACL(acl);
 
     // Save the post

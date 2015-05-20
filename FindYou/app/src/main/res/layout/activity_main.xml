@@ -9,13 +9,34 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="group.csm117.findyou.MainActivity" >
-
-    <Button
-        android:id="@+id/post_button"
-        android:layout_width="match_parent"
+    <LinearLayout
         android:layout_height="wrap_content"
-        android:text="@string/post"
-        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+        android:orientation="horizontal"
+        android:layout_width="match_parent">
+
+        <Button
+            android:id="@+id/event_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Event"
+            android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+
+        <Button
+            android:id="@+id/post_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Detail"
+            android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+
+        <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:textAppearance="?android:attr/textAppearanceSmallInverse"
+            android:layout_gravity="right" />
+    </LinearLayout>
+
 
     <fragment
         android:id="@+id/map_fragment"
@@ -24,6 +45,13 @@
         android:layout_height="fill_parent"
         android:layout_weight="1"
         android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/finish_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Done Moving Locations"
+        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
 
     <ListView
         android:id="@+id/posts_listview"
