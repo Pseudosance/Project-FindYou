@@ -9,10 +9,19 @@ contain everyone’s locations. It will allow placement of different types of ma
 the map to indicate where to go, where parking is, etc. There will also be a contacts 
 list to invite friends to an event/group.
 
-TEAM MEMBERS:
+# APIs, SDKs, etc:
+Used Parse for backend
 
-Steven Beck,
+Google maps for ... well maps and location...
 
-Mitchell Binning,
+Facebook sdk for facebook integration....
+
+Travis CI for testing
+
+# TEAM MEMBERS:
+
+Steven Beck
+
+Mitchell Binning
 
 Amy Drafahl
