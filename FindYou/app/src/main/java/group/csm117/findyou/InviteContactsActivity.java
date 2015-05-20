@@ -2,8 +2,17 @@ package group.csm117.findyou;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.AbsListView;
 import android.widget.ListView;
+
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +71,36 @@ public class InviteContactsActivity extends Activity implements AbsListView.OnSc
         user_friends.add(new User_friend("Apple", "http://farm4.staticflickr.com/3139/2780642603_8d2c90e364_s.jpg"));
         user_friends.add(new User_friend("Pineapple", "http://farm2.staticflickr.com/1008/1420343003_13eeb0f9f3_s.jpg"));
 
-        // JSONArray rows = .... // Data parsed from server
+        GraphRequest request = GraphRequest.newMyFriendsRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONArrayCallback() {
+                    @Override
+                    public void onCompleted(
+                            JSONArray rows,
+                            GraphResponse response) {
+                        // Application code for users friends
+                        try {
+                            Log.d("MyApp", "attemping to grab friends");
+                            Log.d("MyAPP", "number of rows" + rows.length());
+                            for(int i=0; i<rows.length(); i++){
+                                Log.d("MyApp", "Inside loop ");
+                                JSONObject e = rows.getJSONObject(i);
+                                user_friends.add(new User_friend("Apple", "http://farm4.staticflickr.com/3139/2780642603_8d2c90e364_s.jpg"));
+                                user_friends.add(new User_friend(e.optString("name"), e.optString("img_url")));
+
+                            }
+                        } catch (JSONException e) {
+                            Log.e("Error", "json " + e.toString());
+                        }
+                    }
+                });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,link");
+        request.setParameters(parameters);
+        request.executeAsync();
+
+        // JSONArray rows = ...   // Data parsed from server
 /*
         try {
             for(int i=0; i<rows.length(); i++){
