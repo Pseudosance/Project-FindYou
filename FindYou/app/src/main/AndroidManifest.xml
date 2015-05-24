@@ -81,6 +81,14 @@
             android:name=".EventListActivity"
             android:label="@string/title_event_list" >
         </activity>
+        <activity
+            android:name=".InvitationsActivity"
+            android:label="@string/title_activity_invitations"
+            android:parentActivityName=".EventListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="group.csm117.findyou.EventListActivity" />
+        </activity>
     </application>
 
 </manifest>

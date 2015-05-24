@@ -1,5 +1,7 @@
 package group.csm117.findyou;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -36,7 +38,7 @@ public class EventListActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            mEvents = Event.getQuery().find();
+            mEvents = Event.getQuery().whereEqualTo("joined", ParseUser.getCurrentUser()).find();
         } catch (ParseException e) {
             mEvents = new ArrayList();
         }
@@ -49,10 +51,33 @@ public class EventListActivity extends ActionBarActivity
      */
     @Override
     public void onItemSelected(int position) {
-        Event post = mEvents.get(position);
-//        Intent detailIntent = new Intent(this, EventDetailActivity.class);
-//        detailIntent.putExtra(EventDetailFragment.ARG_EVENT_ID, post.getObjectId());
-//        startActivity(detailIntent);
+        final Event event = mEvents.get(position);
+
+        // TODO: go to edit view
+        // For now this helps with testing
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Manage event");
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case AlertDialog.BUTTON_POSITIVE:
+                        event.leave();
+                        event.invite(ParseUser.getCurrentUser());
+                        event.saveInBackground();
+                        break;
+                    case AlertDialog.BUTTON_NEGATIVE:
+                        event.deleteInBackground();
+                        break;
+                }
+                dialog.dismiss();
+            }
+        };
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Unaccept", listener);
+        if (event.getCreator().equals(ParseUser.getCurrentUser())) {
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Delete", listener);
+        }
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancel", listener);
+        alertDialog.show();
     }
 
     @Override
@@ -69,16 +94,21 @@ public class EventListActivity extends ActionBarActivity
         final int menuId = item.getItemId();
         if (menuId == R.id.action_friends) {
             openFriends();
-            return true;
         } else if (menuId == R.id.action_new) {
             openNew();
-            return true;
+        } else if (menuId == R.id.action_invitations) {
+             openInvitations();
         } else {
             return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 
     private void openFriends() {
+    }
+
+    private void openInvitations() {
+        startActivity(new Intent(this, InvitationsActivity.class));
     }
 
     private void openNew() {

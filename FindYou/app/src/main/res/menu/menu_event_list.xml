@@ -6,6 +6,9 @@
         android:id="@+id/action_friends" android:title="F" app:showAsAction="always"
         />
     <item
+        android:id="@+id/action_invitations" android:title="!" app:showAsAction="always"
+        />
+    <item
         android:id="@+id/action_new" android:title="+" app:showAsAction="always"
         />
 </menu>
