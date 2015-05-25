@@ -1,5 +1,8 @@
 package group.csm117.findyou;
 
+/**
+ * Created by Amy on 5/19/2015.
+ */
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -9,7 +12,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,29 +24,25 @@ import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 
-/**
- * Activity which displays a login screen to the user, offering registration as well.
- */
-public class PostActivity extends Activity {
+
+public class EventActivity extends Activity {
     // UI references.
     //private SupportMapFragment mapFragment;
     private EditText postEditText;
+    private EditText titleEditText;
     private TextView characterCountTextView;
     private Button postButton;
-    private ArrayList<String> users;
 
     private int maxCharacterCount = Application.getConfigHelper().getPostMaxCharacterCount();
     private ParseGeoPoint geoPoint;
-    private String event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_post);
+        setContentView(R.layout.activity_event);
 
         Intent intent = getIntent();
-        event = (String) intent.getExtras().getString("event");
         Location location = intent.getParcelableExtra(Application.INTENT_EXTRA_LOCATION);
         geoPoint = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
 
@@ -65,10 +63,26 @@ public class PostActivity extends Activity {
             }
         });
 
+        titleEditText = (EditText) findViewById(R.id.title_edittext);
+        titleEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                updatePostButtonState();
+            }
+        });
+
         characterCountTextView = (TextView) findViewById(R.id.character_count_textview);
 
         postButton = (Button) findViewById(R.id.post_button);
-        postButton.setOnClickListener(new OnClickListener() {
+        postButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 post();
             }
@@ -82,24 +96,24 @@ public class PostActivity extends Activity {
 
     private void post () {
         String text = postEditText.getText().toString().trim();
+        String title = titleEditText.getText().toString().trim();
 
         // Set up a progress dialog
-        final ProgressDialog dialog = new ProgressDialog(PostActivity.this);
-        dialog.setMessage("Creating Detail...");
+        final ProgressDialog dialog = new ProgressDialog(EventActivity.this);
+        dialog.setMessage("Creating Event...");
         dialog.show();
 
         // Create a post.
         FindYouPost post = new FindYouPost();
 
         // Set the location to the current user's location
-
-        users = getIntent().getStringArrayListExtra("users");
-        post.setUsersThatCanSee(users);
         post.setLocation(geoPoint);
-        if (event == null)
-            post.setEvent("DETAIL");
-        else post.setEvent(event);
-        post.setTitle("DETAIL");
+        // add from friends list
+        ArrayList<String> users = new ArrayList<String>();
+        users.add(ParseUser.getCurrentUser().getUsername());
+        post.setUsersThatCanSee(users);
+        post.setEvent("EVENT");
+        post.setTitle(title);
         post.setText(text);
         post.setDraggable(true);
         post.setUser(ParseUser.getCurrentUser());
@@ -126,7 +140,8 @@ public class PostActivity extends Activity {
 
     private void updatePostButtonState () {
         int length = getPostEditTextText().length();
-        boolean enabled = length > 0 && length < maxCharacterCount;
+        int length2 = titleEditText.getText().toString().trim().length();
+        boolean enabled = length > 0 && length < maxCharacterCount && length2 > 0;
         postButton.setEnabled(enabled);
     }
 

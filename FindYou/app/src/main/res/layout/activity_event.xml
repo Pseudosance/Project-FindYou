@@ -6,20 +6,43 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".PostActivity"
+    tools:context=".EventActivity"
     android:background="@color/background">
 
     <EditText
-        android:id="@+id/post_edittext"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_above="@+id/character_count_textview"
+        android:id="@+id/title_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="@null"
-        android:hint="Write stuff here"
-        android:inputType="textMultiLine"
-        android:gravity="top" >
+        android:hint="Write title here"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:gravity="top"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
         <requestFocus />
     </EditText>
+
+    <EditText
+        android:id="@+id/post_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:hint="Write description here"
+        android:inputType="textMultiLine"
+        android:layout_below="@+id/title_edittext"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/character_count_textview">
+        <requestFocus />
+    </EditText>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#eee"
+        android:layout_below="@+id/title_edittext"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"></View>
 
     <Button
         android:id="@+id/post_button"
@@ -32,8 +55,7 @@
         android:layout_alignParentEnd="true"
         android:text="Create"
         android:background="@drawable/primary_button"
-        style="@style/button_style"
-        />
+        style="@style/button_style"/>
 
     <TextView
         android:id="@+id/character_count_textview"
@@ -47,5 +69,4 @@
         android:layout_above="@id/post_button"
         android:text="@string/character_count_placeholder"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-
 </RelativeLayout>

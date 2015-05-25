@@ -52,5 +52,7 @@ public class Application extends android.app.Application {
     public static ConfigHelper getConfigHelper() {
         return configHelper;
     }
+
+
 }
 

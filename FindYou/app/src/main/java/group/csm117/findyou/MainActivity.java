@@ -14,14 +14,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -29,7 +30,9 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.CancelableCallback;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -40,31 +43,37 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
+import com.parse.ParseUser;
 
+import org.json.JSONArray;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 public class MainActivity extends FragmentActivity implements LocationListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener  {
+        GoogleApiClient.OnConnectionFailedListener, OnMarkerDragListener{
+
 
     /*
- * Define a request code to send to Google Play services This code is returned in
- * Activity.onActivityResult
- */
+     * Define a request code to send to Google Play services This code is returned in
+     * Activity.onActivityResult
+     */
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     /*
-   * Constants for location update parameters
-   */
+     * Constants for location update parameters
+     */
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
 
@@ -82,10 +91,9 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     private static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS = MILLISECONDS_PER_SECOND
             * FAST_CEILING_IN_SECONDS;
 
-
     /*
-  * Constants for handling location results
-  */
+     * Constants for handling location results
+     */
     // Conversion from feet to meters
     private static final float METERS_PER_FEET = 0.3048f;
 
@@ -104,6 +112,9 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     // Maximum post search radius for map in kilometers
     private static final int MAX_POST_SEARCH_DISTANCE = 100;
 
+    /*
+     * Other class member variables
+     */
     // Map fragment
     private SupportMapFragment mapFragment;
 
@@ -118,6 +129,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     private final Map<String, Marker> mapMarkers = new HashMap<String, Marker>();
     private int mostRecentMapUpdate;
     private boolean hasSetUpInitialLocation;
+    private FindYouPost selectedPost;
     private String selectedPostObjectId;
     private Location lastLocation;
     private Location currentLocation;
@@ -133,8 +145,43 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 
 
     @Override
+    public void onMarkerDrag(Marker marker) {
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        LatLng pos = marker.getPosition();
+        final ParseGeoPoint geoPoint = new ParseGeoPoint(pos.latitude, pos.longitude);
+        String post = null;
+
+        // get post id of the marker
+        for(String postID: mapMarkers.keySet()) {
+            if (mapMarkers.get(postID).getId().equals(marker.getId())) {
+                post = postID;
+                break;
+            }
+        }
+
+        ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
+        mapQuery.getInBackground(post, new GetCallback<FindYouPost>() {
+            public void done(FindYouPost post, ParseException e) {
+                if (e == null) {
+                    post.put("location", geoPoint);
+                    post.saveInBackground();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         radius = Application.getSearchDistance();
         lastRadius = radius;
         setContentView(R.layout.activity_main);
@@ -148,21 +195,17 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         // Use high accuracy
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        //Set the interval ceiling to one minute
+        // Set the interval ceiling to one minute
         locationRequest.setFastestInterval(FAST_INTERVAL_CEILING_IN_MILLISECONDS);
 
-//        Create a new location client, using the enclosing class to handle callbacks.
+        // Create a new location client, using the enclosing class to handle callbacks.
         locationClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        //ParseQueryAdapter<FindYouPost> adapter = new ParseQueryAdapter<FindYouPost>(this, FindYouPost.class);
-       // adapter.setTextKey("text");
-       // ListView postsListView = (ListView) this.findViewById(R.id.posts_listview);
-       // postsListView.setAdapter(adapter);
-
+        // Set up a customized query
         ParseQueryAdapter.QueryFactory<FindYouPost> factory =
                 new ParseQueryAdapter.QueryFactory<FindYouPost>() {
                     public ParseQuery<FindYouPost> create() {
@@ -170,13 +213,14 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                         ParseQuery<FindYouPost> query = FindYouPost.getQuery();
                         query.include("user");
                         query.orderByDescending("createdAt");
-                        query.whereWithinKilometers("location", geoPointFromLocation(myLoc), radius
-                                * METERS_PER_FEET / METERS_PER_KILOMETER);
+                        //query.whereWithinKilometers("location", geoPointFromLocation(myLoc), radius
+                        // * METERS_PER_FEET / METERS_PER_KILOMETER);
                         query.setLimit(MAX_POST_SEARCH_RESULTS);
                         return query;
                     }
                 };
 
+        // Set up the query adapter
         postsQueryAdapter = new ParseQueryAdapter<FindYouPost>(this, factory) {
             @Override
             public View getItemView(FindYouPost post, View view, ViewGroup parent) {
@@ -184,32 +228,51 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                     view = View.inflate(getContext(), R.layout.findyou_post_item, null);
                 }
                 TextView contentView = (TextView) view.findViewById(R.id.content_view);
+                final TextView eventView = (TextView) view.findViewById(R.id.event_view);
                 TextView usernameView = (TextView) view.findViewById(R.id.username_view);
+                if(post.getEvent().equals("EVENT"))
+                    eventView.setText(post.getTitle() + " Event");
+                else {
+                    ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
+                    mapQuery.getInBackground(post.getEvent(), new GetCallback<FindYouPost>() {
+                        public void done(FindYouPost post, ParseException e) {
+                            if (e == null) {
+                                eventView.setText(post.getTitle()+" Detail");
+                            }
+                        }
+                    });
+                }
                 contentView.setText(post.getText());
-                usernameView.setText(post.getUser().getUsername());
+                if(!post.getEvent().equals("USER"))
+                    usernameView.setText(post.getUser().getUsername());
                 return view;
             }
         };
 
+        // Disable automatic loading when the adapter is attached to a view.
         postsQueryAdapter.setAutoload(false);
+
+        // Disable pagination, we'll manage the query limit ourselves
         postsQueryAdapter.setPaginationEnabled(false);
 
         // Attach the query adapter to the view
         ListView postsListView = (ListView) findViewById(R.id.posts_listview);
         postsListView.setAdapter(postsQueryAdapter);
 
-        postsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // Set up the handler for an item's selection
+        postsListView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final FindYouPost item = postsQueryAdapter.getItem(position);
+                selectedPost = item;
                 selectedPostObjectId = item.getObjectId();
                 mapFragment.getMap().animateCamera(
                         CameraUpdateFactory.newLatLng(new LatLng(item.getLocation().getLatitude(), item
-                                .getLocation().getLongitude())), new GoogleMap.CancelableCallback() {
+                                .getLocation().getLongitude())), new CancelableCallback() {
                             public void onFinish() {
                                 Marker marker = mapMarkers.get(item.getObjectId());
                                 if (marker != null) {
                                     marker.showInfoWindow();
-                              }
+                                }
                             }
 
                             public void onCancel() {
@@ -218,45 +281,199 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                 Marker marker = mapMarkers.get(item.getObjectId());
                 if (marker != null) {
                     marker.showInfoWindow();
-               }
+                }
             }
         });
 
-
+        // Set up the map fragment
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         // Enable the current location "blue dot"
         mapFragment.getMap().setMyLocationEnabled(true);
         // Set up the camera change handler
-        mapFragment.getMap().setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+        mapFragment.getMap().setOnCameraChangeListener(new OnCameraChangeListener() {
             public void onCameraChange(CameraPosition position) {
-                // Run the map query
+                // When the camera changes, update the query
                 doMapQuery();
-                doListQuery();
             }
         });
 
-        // 1
+        mapFragment.getMap().setOnMarkerDragListener(this);
+
+        // Set up the handler for the post button click
         Button postButton = (Button) findViewById(R.id.post_button);
-        postButton.setOnClickListener(new View.OnClickListener() {
+        postButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                // 2
+                // Only allow posts if we have a location
                 Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
                 if (myLoc == null) {
-                    Toast.makeText(MainActivity.this, "Please try again after your location appears on the map.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this,
+                            "Please try again after your location appears on the map.", Toast.LENGTH_LONG).show();
                     return;
                 }
-                // 3
+                if ((selectedPost == null) || (!selectedPost.getEvent().equals("EVENT"))) {
+                    Toast.makeText(MainActivity.this,
+                            "Please select an event for this detail.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Toast.makeText(MainActivity.this,
+                        "starting detail activity", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(MainActivity.this, PostActivity.class);
+                intent.putExtra(Application.INTENT_EXTRA_LOCATION, myLoc);
+                ArrayList<String> listdata = new ArrayList<String>();
+                JSONArray jArray = selectedPost.getUsersThatCanSee();
+                if (jArray != null) {
+                    for (int i=0;i<jArray.length();i++){
+                        try{
+                            listdata.add(jArray.get(i).toString());} catch(Exception e){}
+                    }
+                }
+                intent.putExtra("users", listdata);
+                intent.putExtra("event", selectedPost.getObjectId());
+                startActivity(intent);
+            }
+        });
+
+        // Set up the handler for the post button click
+        Button eventButton = (Button) findViewById(R.id.event_button);
+        eventButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                // Only allow posts if we have a location
+                Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
+                if (myLoc == null) {
+                    Toast.makeText(MainActivity.this,
+                            "Please try again after your location appears on the map.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Toast.makeText(MainActivity.this,
+                        "starting event activity", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(MainActivity.this, EventActivity.class);
                 intent.putExtra(Application.INTENT_EXTRA_LOCATION, myLoc);
                 startActivity(intent);
             }
         });
 
+        // Set up the handler for the post button click
+        Button deleteButton = (Button) findViewById(R.id.delete_button);
+        deleteButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                // Only allow posts if we have a location
+                Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
+                if (myLoc == null) {
+                    Toast.makeText(MainActivity.this,
+                            "Please try again after your location appears on the map.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if ((selectedPost == null) || (selectedPost.getEvent().equals("USER"))) {
+                    Toast.makeText(MainActivity.this,
+                            "Please select an event or detail to delete.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Toast.makeText(MainActivity.this,
+                        "starting delete activity", Toast.LENGTH_LONG).show();
+                ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
+                mapQuery.getInBackground(selectedPost.getObjectId(), new GetCallback<FindYouPost>() {
+                    public void done(FindYouPost post, ParseException e) {
+                        if (e == null) {
+                            // delete the detail
+                            final FindYouPost p = post;
+                            if (!post.getEvent().equals("EVENT")) {
+                                try {
+                                    post.delete();
+                                } catch (Exception ex) {
+                                    Toast.makeText(MainActivity.this,
+                                            "Cannot delete.", Toast.LENGTH_LONG).show();
+                                }
+                                mapMarkers.get(post.getObjectId()).remove();
+                            }
+                            // delete the event and all details of it
+                            else {
+                                ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
+                                mapQuery.include("user");
+                                mapQuery.orderByDescending("createdAt");
+                                mapQuery.setLimit(MAX_POST_SEARCH_RESULTS);
+                                mapQuery.findInBackground(new FindCallback<FindYouPost>() {
+                                    @Override
+                                    public void done(List<FindYouPost> objects, ParseException e) {
+                                        if (e != null) {
+                                            if (Application.APPDEBUG) {
+                                                Log.d(Application.APPTAG, "An error occurred while querying for map posts.", e);
+                                            }
+                                            return;
+                                        }
+
+                                        // delete details of that event
+                                        for (FindYouPost post : objects) {
+                                            if (post.getEvent().equals(p.getObjectId())) {
+                                                try {
+                                                    post.delete();
+                                                } catch (Exception ex) {
+                                                    Toast.makeText(MainActivity.this,
+                                                            "Cannot delete.", Toast.LENGTH_LONG).show();
+                                                }
+                                                mapMarkers.get(post.getObjectId()).remove();
+                                            }
+                                        }
+                                    }
+                                });
+                                //delete that event
+                                try {
+                                    post.delete();
+                                } catch (Exception ex) {
+                                    Toast.makeText(MainActivity.this,
+                                            "Cannot delete.", Toast.LENGTH_LONG).show();
+                                }
+                                mapMarkers.get(post.getObjectId()).remove();
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Set up the handler for the post button click
+        Button finishButton = (Button) findViewById(R.id.finish_button);
+        finishButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                // change the new marker to be non draggable and updates its new position
+                Toast.makeText(MainActivity.this,
+                        "starting finish activity", Toast.LENGTH_LONG).show();
+                //make all markers non draggable now
+                for (String objId : new HashSet<String>(mapMarkers.keySet())) {
+                    final Marker marker = mapMarkers.get(objId);
+                    //save new position
+                    ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
+                    mapQuery.getInBackground(objId, new GetCallback<FindYouPost>() {
+                        public void done(FindYouPost post, ParseException e) {
+                            if (e == null) {
+                                // check if this is the user's current location marker
+                                if (!post.getEvent().equals("USER")) {
+                                    marker.setDraggable(false);
+                                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                                    post.put("draggable", false);
+                                    // Set up a progress dialog
+                /*final ProgressDialog dialog = new ProgressDialog(MainActivity.this);
+                dialog.setMessage("Saving new marker positions.");
+                dialog.show();*/
+                                    // Save the post
+                                    post.saveInBackground();
+                /*post.saveInBackground(new SaveCallback() {
+                  @Override
+                  public void done(ParseException e) {
+                    dialog.dismiss();
+                  }
+                });*/
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     /*
-  * Called when the Activity is no longer visible at all. Stop updates and disconnect.
-  */
+     * Called when the Activity is no longer visible at all. Stop updates and disconnect.
+     */
     @Override
     public void onStop() {
         // If the client is connected
@@ -271,8 +488,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     }
 
     /*
-       * Called when the Activity is restarted, even before it becomes visible.
-       */
+     * Called when the Activity is restarted, even before it becomes visible.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -281,13 +498,12 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         locationClient.connect();
     }
 
-
+    /*
+     * Called when the Activity is resumed. Updates the view.
+     */
     @Override
     protected void onResume() {
         super.onResume();
-
-        // Logs 'install' and 'app activate' App Events.
-        AppEventsLogger.activateApp(this);
 
         Application.getConfigHelper().fetchConfigIfNeeded();
 
@@ -309,16 +525,15 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         // Query for the latest data to update the views.
         doMapQuery();
         doListQuery();
-
     }
 
     /*
-   * Handle results returned to this Activity by other Activities started with
-   * startActivityForResult(). In particular, the method onConnectionFailed() in
-   * LocationUpdateRemover and LocationUpdateRequester may call startResolutionForResult() to start
-   * an Activity that handles Google Play services problems. The result of this call returns here,
-   * to onActivityResult.
-   */
+     * Handle results returned to this Activity by other Activities started with
+     * startActivityForResult(). In particular, the method onConnectionFailed() in
+     * LocationUpdateRemover and LocationUpdateRequester may call startResolutionForResult() to start
+     * an Activity that handles Google Play services problems. The result of this call returns here,
+     * to onActivityResult.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         // Choose what to do based on the request code
@@ -355,14 +570,13 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                 }
                 break;
         }
-
     }
 
     /*
-   * Verify that Google Play services is available before making a request.
-   *
-   * @return true if Google Play services is available, otherwise false
-   */
+     * Verify that Google Play services is available before making a request.
+     *
+     * @return true if Google Play services is available, otherwise false
+     */
     private boolean servicesConnected() {
         // Check that Google Play services is available
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -386,30 +600,27 @@ public class MainActivity extends FragmentActivity implements LocationListener,
             }
             return false;
         }
-
     }
 
     /*
-       * Called by Location Services when the request to connect the client finishes successfully. At
-       * this point, you can request the current location or start periodic updates
-       */
+     * Called by Location Services when the request to connect the client finishes successfully. At
+     * this point, you can request the current location or start periodic updates
+     */
     public void onConnected(Bundle bundle) {
         if (Application.APPDEBUG) {
-            Log.d("Connected loc services", Application.APPTAG);
+            Log.d("Connected to services", Application.APPTAG);
         }
         currentLocation = getLocation();
         startPeriodicUpdates();
-
     }
 
     /*
-       * Called by Location Services if the connection to the location client drops because of an error.
-       */
+     * Called by Location Services if the connection to the location client drops because of an error.
+     */
     public void onDisconnected() {
         if (Application.APPDEBUG) {
-            Log.d("Disconnect locServices", Application.APPTAG);
+            Log.d("Disconnected services", Application.APPTAG);
         }
-
     }
 
     @Override
@@ -440,7 +651,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
             // If no resolution is available, display a dialog to the user with the error.
             showErrorDialog(connectionResult.getErrorCode());
         }
-
     }
 
     /*
@@ -465,15 +675,14 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         updateCircle(myLatLng);
         doMapQuery();
         doListQuery();
-
     }
 
     /*
-       * In response to a request to start updates, send a request to Location Services
-       */
+     * In response to a request to start updates, send a request to Location Services
+     */
     private void startPeriodicUpdates() {
         LocationServices.FusedLocationApi.requestLocationUpdates(
-              locationClient, locationRequest, this);
+                locationClient, locationRequest, this);
     }
 
     /*
@@ -494,7 +703,206 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         } else {
             return null;
         }
+    }
 
+    /*
+     * Set up a query to update the list view
+     */
+    private void doListQuery() {
+        Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
+        // If location info is available, load the data
+        if (myLoc != null) {
+            // Refreshes the list view with new data based
+            // usually on updated location data.
+            postsQueryAdapter.loadObjects();
+            postsQueryAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /*
+     * Set up the query to update the map view
+     */
+    private void doMapQuery() {
+
+        ///postsQueryAdapter.notifyDataSetChanged();
+
+
+        final int myUpdateNumber = ++mostRecentMapUpdate;
+        Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
+        // If location info isn't available, clean up any existing markers
+        if (myLoc == null) {
+            cleanUpMarkers(new HashSet<String>());
+            return;
+        }
+        final ParseGeoPoint myPoint = geoPointFromLocation(myLoc);
+        // Create the map Parse query
+        ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
+        // Set up additional query filters
+        //mapQuery.whereWithinKilometers("location", myPoint, MAX_POST_SEARCH_DISTANCE);
+        mapQuery.include("user");
+        mapQuery.orderByDescending("createdAt");
+        mapQuery.setLimit(MAX_POST_SEARCH_RESULTS);
+        // Kick off the query in the background
+        mapQuery.findInBackground(new FindCallback<FindYouPost>() {
+            @Override
+            public void done(List<FindYouPost> objects, ParseException e) {
+                if (e != null) {
+                    if (Application.APPDEBUG) {
+                        Log.d(Application.APPTAG, "An error occurred while querying for map posts.", e);
+                    }
+                    return;
+                }
+        /*
+         * Make sure we're processing results from
+         * the most recent update, in case there
+         * may be more than one in progress.
+         */
+                if (myUpdateNumber != mostRecentMapUpdate) {
+                    return;
+                }
+
+                // Posts to show on the map
+                Set<String> toKeep = new HashSet<String>();
+                Boolean b;
+                FindYouPost myLocation = null;
+
+                // Loop through the results of the search
+                for (FindYouPost post : objects) {
+
+                    // skip this post if this user shouldn't see this post.
+                    ArrayList<String> listdata = new ArrayList<String>();
+                    JSONArray jArray = post.getUsersThatCanSee();
+                    if (jArray != null) {
+                        for (int i=0;i<jArray.length();i++){
+                            try{
+                                listdata.add(jArray.get(i).toString());} catch(Exception exp){}
+                        }
+                    }
+                    if ((post.getUsersThatCanSee() == null) || !listdata.contains(ParseUser.getCurrentUser().getUsername()))
+                        continue;
+
+                    // check if this is the user's current location marker
+                    if (post.getEvent() != null) {
+                        if (post.getEvent().equals("USER") && post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                            myLocation = post;
+                            continue;
+                        }
+                    }
+
+                    // Add this post to the list of map pins to keep
+                    toKeep.add(post.getObjectId());
+                    // Check for an existing marker for this post
+                    Marker oldMarker = mapMarkers.get(post.getObjectId());
+                    if (oldMarker != null)
+                        continue;
+
+                    // Set up the map marker's location
+                    MarkerOptions markerOpts =
+                            new MarkerOptions().position(new LatLng(post.getLocation().getLatitude(), post
+                                    .getLocation().getLongitude()));
+                    // Set up the marker properties based on if it is within the search radius
+                    if (post.getLocation().distanceInKilometersTo(myPoint) > radius * METERS_PER_FEET
+                            / METERS_PER_KILOMETER) {
+                        // Check for an existing out of range marker
+                        if (oldMarker != null) {
+                            if (oldMarker.getSnippet() == null) {
+                                // Out of range marker already exists, skip adding it
+                                continue;
+                            } else {
+                                // Marker now out of range, needs to be refreshed
+                                oldMarker.remove();
+                            }
+                        }
+                        // Display a red marker with a predefined title and no snippet
+                        markerOpts =
+                                markerOpts.title(getResources().getString(R.string.post_out_of_range)).icon(
+                                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    } else {
+                        // Check for an existing in range marker
+                        if (oldMarker != null) {
+                            if (oldMarker.getSnippet() != null) {
+                                // In range marker already exists, skip adding it
+                                continue;
+                            } else {
+                                // Marker now in range, needs to be refreshed
+                                oldMarker.remove();
+                            }
+                        }
+                        // Display a green marker with the post information
+                        b = post.getDraggable();
+                        if(post.getEvent().equals("EVENT")) {
+                            if (b)
+                                markerOpts =
+                                        markerOpts.title(post.getText()).snippet(post.getUser().getUsername()).draggable(b)
+                                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                            else markerOpts =
+                                    markerOpts.title(post.getText()).snippet(post.getUser().getUsername()).draggable(b)
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                        } else {
+                            if (b)
+                                markerOpts =
+                                        markerOpts.title(post.getText()).snippet(post.getUser().getUsername()).draggable(b)
+                                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                            else markerOpts =
+                                    markerOpts.title(post.getText()).snippet(post.getUser().getUsername()).draggable(b)
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                        }
+                    }
+                    // Add a new marker
+                    Marker marker = mapFragment.getMap().addMarker(markerOpts);
+                    mapMarkers.put(post.getObjectId(), marker);
+                    if (post.getObjectId().equals(selectedPostObjectId)) {
+                        marker.showInfoWindow();
+                        selectedPostObjectId = null;
+                    }
+                }
+                //make sure the user's current location is updated and displayed.
+                if (myLocation != null) {
+                    // Check for an existing marker for this post, need to update location if so
+                    Marker oldMarker = mapMarkers.get(myLocation.getObjectId());
+                    if (oldMarker != null)
+                        oldMarker.remove();
+                    ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
+                    mapQuery.getInBackground(myLocation.getObjectId(), new GetCallback<FindYouPost>() {
+                        public void done(FindYouPost post, ParseException e) {
+                            if (e == null) {
+                                post.put("location", myPoint);
+                                post.saveInBackground();
+                            }
+                        }
+                    });
+                } else { // create the location marker
+                    myLocation = new FindYouPost();
+                    ArrayList<String> users = new ArrayList<String>();
+                    users.add(ParseUser.getCurrentUser().getUsername());
+                    myLocation.setUsersThatCanSee(users);
+                    myLocation.setLocation(myPoint);
+                    myLocation.setText(ParseUser.getCurrentUser().getUsername() + " is here.");
+                    myLocation.setDraggable(false);
+                    myLocation.setEvent("USER");
+                    myLocation.setUser(ParseUser.getCurrentUser());
+                    ParseACL acl = new ParseACL();
+                    acl.setPublicReadAccess(true);
+                    acl.setPublicWriteAccess(true);
+                    myLocation.setACL(acl);
+                    myLocation.saveInBackground();
+
+                }
+                MarkerOptions markerOpts =
+                        new MarkerOptions().position(new LatLng(myLocation.getLocation().getLatitude(), myLocation
+                                .getLocation().getLongitude()));
+                markerOpts =
+                        markerOpts.title(myLocation.getText()).snippet(myLocation.getUser().getUsername()).draggable(false)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                Marker marker = mapFragment.getMap().addMarker(markerOpts);
+                mapMarkers.put(myLocation.getObjectId(), marker);
+                toKeep.add(myLocation.getObjectId());
+
+
+                // Clean up old markers.
+                cleanUpMarkers(toKeep);
+            }
+        });
     }
 
     /*
@@ -511,6 +919,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         }
     }
 
+
     /*
      * Helper method to get the Parse GEO point representation of a location
      */
@@ -518,118 +927,9 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         return new ParseGeoPoint(loc.getLatitude(), loc.getLongitude());
     }
 
-    private void doListQuery() {
-        Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
-        if (myLoc != null) {
-            postsQueryAdapter.loadObjects();
-        }
-
-    }
-
-    private void doMapQuery() {
-        final int myUpdateNumber = ++mostRecentMapUpdate;
-        // 1
-        Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
-        if (myLoc == null) {
-            cleanUpMarkers(new HashSet<String>());
-            return;
-        }
-        // 2
-        final ParseGeoPoint myPoint = geoPointFromLocation(myLoc);
-        // 3
-        ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
-        // 4
-        mapQuery.whereWithinKilometers("location", myPoint, MAX_POST_SEARCH_DISTANCE);
-        // 5
-        mapQuery.include("user");
-        mapQuery.orderByDescending("createdAt");
-        mapQuery.setLimit(MAX_POST_SEARCH_RESULTS);
-        // 6
-        mapQuery.findInBackground(new FindCallback<FindYouPost>() {
-            @Override
-            public void done(List<FindYouPost> objects, ParseException e) {
-                // Handle the results
-                if (e != null) {
-                    if (Application.APPDEBUG) {
-                        Log.d(Application.APPTAG, "An error occurred while querying for map posts.", e);
-                    }
-                    return;
-                }
-
-                /*
-                 * Make sure we're processing results from
-                 * the most recent update, in case there
-                 * may be more than one in progress.
-                 */
-                if (myUpdateNumber != mostRecentMapUpdate) {
-                    return;
-                }
-
-                // No errors, process query results
-                // 1
-                Set<String> toKeep = new HashSet<String>();
-                // 2
-                for (FindYouPost post : objects) {
-                    // 3
-                    toKeep.add(post.getObjectId());
-                    // 4
-                    Marker oldMarker = mapMarkers.get(post.getObjectId());
-                    // 5
-                    MarkerOptions markerOpts =
-                            new MarkerOptions().position(new LatLng(post.getLocation().getLatitude(), post
-                                    .getLocation().getLongitude()));
-                    // 6
-                    if (post.getLocation().distanceInKilometersTo(myPoint) > radius * METERS_PER_FEET
-                            / METERS_PER_KILOMETER) {
-                        // Set up an out-of-range marker
-                        if (oldMarker != null) {
-                            if (oldMarker.getSnippet() == null) {
-                                continue;
-                            } else {
-                                oldMarker.remove();
-                            }
-                        }
-                        markerOpts =
-                                markerOpts.title(getResources().getString(R.string.post_out_of_range))
-                                        .icon(BitmapDescriptorFactory.defaultMarker(
-                                                BitmapDescriptorFactory.HUE_RED));
-
-                    }
-                    else {
-                        // Set up an in-range marker
-                        if (oldMarker != null) {
-                            if (oldMarker.getSnippet() != null) {
-                                continue;
-                            } else {
-                                oldMarker.remove();
-                            }
-                        }
-                        markerOpts =
-                                markerOpts.title(post.getText())
-                                        .snippet(post.getUser().getUsername())
-                                        .icon(BitmapDescriptorFactory.defaultMarker(
-                                                BitmapDescriptorFactory.HUE_GREEN));
-                    }
-                    // 7
-                    Marker marker = mapFragment.getMap().addMarker(markerOpts);
-                    mapMarkers.put(post.getObjectId(), marker);
-                    // 8
-                    if (post.getObjectId().equals(selectedPostObjectId)) {
-                        marker.showInfoWindow();
-                        selectedPostObjectId = null;
-                    }
-                }
-                // 9
-                cleanUpMarkers(toKeep);
-            }
-
-        });
-
-    }
-
     /*
-   * Displays a circle on the map representing the search radius
-   */
+     * Displays a circle on the map representing the search radius
+     */
     private void updateCircle(LatLng myLatLng) {
         if (mapCircle == null) {
             mapCircle =
@@ -646,8 +946,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     }
 
     /*
-       * Zooms the map to show the area of interest based on the search radius
-       */
+     * Zooms the map to show the area of interest based on the search radius
+     */
     private void updateZoom(LatLng myLatLng) {
         // Get the bounds to zoom to
         LatLngBounds bounds = calculateBoundsWithCenter(myLatLng);
@@ -797,5 +1097,4 @@ public class MainActivity extends FragmentActivity implements LocationListener,
             return mDialog;
         }
     }
-
 }
