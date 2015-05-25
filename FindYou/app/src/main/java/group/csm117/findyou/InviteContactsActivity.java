@@ -81,12 +81,14 @@ public class InviteContactsActivity extends Activity implements AbsListView.OnSc
                         // Application code for users friends
                         try {
                             Log.d("MyApp", "attemping to grab friends");
-                            Log.d("MyAPP", "number of rows" + rows.length());
+                            Log.d("MyAPP", "number of rows: " + rows.length());
                             for(int i=0; i<rows.length(); i++){
                                 Log.d("MyApp", "Inside loop ");
                                 JSONObject e = rows.getJSONObject(i);
-                                user_friends.add(new User_friend("Apple", "http://farm4.staticflickr.com/3139/2780642603_8d2c90e364_s.jpg"));
-                                user_friends.add(new User_friend(e.optString("name"), e.optString("img_url")));
+                               // user_friends.add(new User_friend("Apple", "http://farm4.staticflickr.com/3139/2780642603_8d2c90e364_s.jpg"));
+                                Log.d("MyApp", e.optString("name"));
+                                Log.d("MyApp", e.optString("id"));
+                                user_friends.add(new User_friend(e.optString("name"), "http://graph.facebook.com/" + e.optString("id") + "/picture"));
 
                             }
                         } catch (JSONException e) {
