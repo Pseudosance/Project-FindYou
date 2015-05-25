@@ -1,6 +1,13 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/event_list"
-    android:name="group.csm117.findyou.EventListFragment" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp" tools:context="group.csm117.findyou.EventListActivity"
-    tools:layout="@android:layout/list_content" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="group.csm117.findyou.EventListActivity">
+
+    <group.csm117.findyou.RefreshableListViewWrapper
+        android:id="@+id/refresh_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </group.csm117.findyou.RefreshableListViewWrapper>
+
+</RelativeLayout>

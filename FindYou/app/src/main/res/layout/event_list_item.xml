@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="No Title"
-        android:id="@+id/titleTextView" />
+        android:id="@+id/title_text_view" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text=""
-        android:id="@+id/friendsTextView" />
+        android:id="@+id/friends_text_view" />
 
 </LinearLayout>
