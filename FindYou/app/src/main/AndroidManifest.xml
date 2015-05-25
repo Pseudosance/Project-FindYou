@@ -77,6 +77,17 @@
             android:name=".InviteContactsActivity"
             android:label="@string/title_activity_invite_contacts" >
         </activity>
+        <activity
+            android:name=".AppLinkingActivity"
+            android:label="@string/title_activity_app_linking" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs "com.example.myapp://" -->
+                <data android:scheme="group.csm117.findyou" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
