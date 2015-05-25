@@ -87,6 +87,17 @@
                 <!-- Accepts URIs "com.example.myapp://" -->
                 <data android:scheme="group.csm117.findyou" />
             </intent-filter>
+
+        </activity>
+        <activity
+            android:name=".EventListActivity"
+            android:label="@string/title_event_list" >
+            android:name=".InvitationsActivity"
+            android:label="@string/title_activity_invitations"
+            android:parentActivityName=".EventListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="group.csm117.findyou.EventListActivity" />
         </activity>
     </application>
 

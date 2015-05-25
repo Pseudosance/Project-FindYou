@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="group.csm117.findyou.EventListActivity">
+    <item
+        android:id="@+id/action_friends" android:title="F" app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/action_invitations" android:title="!" app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/action_new" android:title="+" app:showAsAction="always"
+        />
+</menu>

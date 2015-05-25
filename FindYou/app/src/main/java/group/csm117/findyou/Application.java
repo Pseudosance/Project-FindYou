@@ -31,6 +31,7 @@ public class Application extends android.app.Application {
         super.onCreate();
         FacebookSdk.sdkInitialize(getApplicationContext());
         ParseObject.registerSubclass(FindYouPost.class);
+        ParseObject.registerSubclass(Event.class);
         Parse.initialize(this, "WyyPQ72c4Qk0U47BrnlrXCgXWVItNloBG94bqSzH", "6flz6M11tkjFpZVeDPFaGGE1cUmPoleMMrfxHKQh");
         ParseFacebookUtils.initialize(this);
 

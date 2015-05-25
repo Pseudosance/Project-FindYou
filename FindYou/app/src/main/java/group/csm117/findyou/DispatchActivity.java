@@ -17,6 +17,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class DispatchActivity extends Activity {
 
+   // Boolean test = true;
+
     public DispatchActivity(){
 
     }
@@ -40,10 +42,17 @@ public class DispatchActivity extends Activity {
 
         }
 
+        //Testing purposes
+        //Todo: delete
+      //  if(test) {
+   //         test = false;
+    //        startActivity(new Intent(this, SettingsActivity.class));
+  //      }else
+        if
         // Check if there is current user info
-        if(ParseUser.getCurrentUser()!= null) {
+        (ParseUser.getCurrentUser()!= null) {
             // Start an intent for the logged in activity
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, EventListActivity.class));
         } else {
             // Sart and intent for the logged out activity
             startActivity(new Intent(this, WelcomeActivity.class));
