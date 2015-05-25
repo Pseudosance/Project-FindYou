@@ -3,7 +3,9 @@ package group.csm117.findyou;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.facebook.AccessToken;
@@ -27,50 +29,13 @@ public class InviteContactsActivity extends Activity implements AbsListView.OnSc
     private boolean lvBusy = false;
 
     /** Called when the activity is first created. */
-   /* ListView list;
-    private List<String> List_file;
-
-    private void CreateListView()
-    {
-        List_file.add("Coderzheaven");
-        List_file.add("Google");
-        List_file.add("Android");
-        List_file.add("iPhone");
-        List_file.add("Apple");
-        //Create an adapter for the listView and add the ArrayList to the adapter.
-        list.setAdapter(new ArrayAdapter<String>(InviteContactsActivity.this, android.R.layout.simple_list_item_1,List_file));
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3)
-            {
-                //args2 is the listViews Selected index
-                // Send Invite
-
-                Log.d("MyApp", "User clicked on list item!");
-
-            }
-        });
-    }
-*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invite_contacts);
 
-        /*List_file = new ArrayList<String>();
-        list = (ListView)findViewById(R.id.listview);
-
-        CreateListView();*/
-
         // populate data
         user_friends = new ArrayList();
-
-
-        user_friends.add(new User_friend("Orange", "http://farm5.staticflickr.com/4142/4787427683_3672f1db9a_s.jpg"));
-        user_friends.add(new User_friend("Apple", "http://farm4.staticflickr.com/3139/2780642603_8d2c90e364_s.jpg"));
-        user_friends.add(new User_friend("Pineapple", "http://farm2.staticflickr.com/1008/1420343003_13eeb0f9f3_s.jpg"));
-
         GraphRequest request = GraphRequest.newMyFriendsRequest(
                 AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONArrayCallback() {
@@ -83,12 +48,11 @@ public class InviteContactsActivity extends Activity implements AbsListView.OnSc
                             Log.d("MyApp", "attemping to grab friends");
                             Log.d("MyAPP", "number of rows: " + rows.length());
                             for(int i=0; i<rows.length(); i++){
+
                                 Log.d("MyApp", "Inside loop ");
                                 JSONObject e = rows.getJSONObject(i);
-                               // user_friends.add(new User_friend("Apple", "http://farm4.staticflickr.com/3139/2780642603_8d2c90e364_s.jpg"));
-                                Log.d("MyApp", e.optString("name"));
-                                Log.d("MyApp", e.optString("id"));
-                                user_friends.add(new User_friend(e.optString("name"), "http://graph.facebook.com/" + e.optString("id") + "/picture"));
+
+                                user_friends.add(new User_friend(e.optString("name"), e.getJSONObject("picture").getJSONObject("data").getString("url")));
 
                             }
                         } catch (JSONException e) {
@@ -98,25 +62,34 @@ public class InviteContactsActivity extends Activity implements AbsListView.OnSc
                 });
 
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,link");
+        parameters.putString("fields", "picture.type(small),id,name,link");
         request.setParameters(parameters);
         request.executeAsync();
 
-        // JSONArray rows = ...   // Data parsed from server
-/*
-        try {
-            for(int i=0; i<rows.length(); i++){
-                JSONObject e = rows.getJSONObject(i);
+        // Populate list view with more to demonstrate scrolling because I only have 1 friend....
+        user_friends.add(new User_friend("Orange", "http://farm5.staticflickr.com/4142/4787427683_3672f1db9a_s.jpg"));
+        user_friends.add(new User_friend("Apple", "http://farm4.staticflickr.com/3139/2780642603_8d2c90e364_s.jpg"));
+        user_friends.add(new User_friend("Pineapple", "http://farm2.staticflickr.com/1008/1420343003_13eeb0f9f3_s.jpg"));
+        user_friends.add(new User_friend("Grape", "http://4.bp.blogspot.com/-M6qZctUebsU/VKQTpu_ARxI/AAAAAAAAAZQ/Wchoe_Jd1C0/s1600/grape%2B1.JPG"));
+        user_friends.add(new User_friend("Cherry", "http://graphics8.nytimes.com/newsgraphics/2014/06/16/bittman-eat-cherry/ed5c4f4c098cd142650d7c00014e71abf85d2f86/eatopener_cherry.jpg"));
+        user_friends.add(new User_friend("Pumpkin", "https://americanorchard.files.wordpress.com/2013/03/pumpkin-simple-image.jpg"));
+        user_friends.add(new User_friend("Banana", "http://saltmarshrunning.com/wp-content/uploads/2014/09/bananasf.jpg"));
+        user_friends.add(new User_friend("Strawberry", "http://www.adagio.com/images5/flavor_thumbnail/strawberry.jpg"));
+        user_friends.add(new User_friend("Watermelon", "http://www.wzdm.com/wp-content/uploads/2014/08/d0e5Watermelon2.jpg"));
 
-                user_friends.add(new User_friend(e.optString("name"), e.optString("img_url")));
-            }
-        } catch (JSONException e) {
-            Log.e("Error", "json " +e.toString());
-        }
-*/
         lvFriends = (ListView) findViewById( R.id.listview);
         adapterFriends = new User_friendListAdapterWithCache(this, user_friends);
         lvFriends.setAdapter(adapterFriends);
+        lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                //args2 is the listViews Selected index
+                // Send Invite
+
+                Log.d("MyApp", "User clicked on list item!");
+
+            }
+        });
 
     }
 
