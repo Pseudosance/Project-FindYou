@@ -2,20 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="group.csm117.findyou.EventListActivity">
-
     <item
-        android:id="@+id/action_friends" android:title="Friend List"
-        android:orderInCategory="0" app:showAsAction="never"
+        android:id="@+id/action_friends" android:title="F" app:showAsAction="always"
         />
     <item
-        android:id="@+id/action_invitations" android:title="Current Invitations"
-        android:orderInCategory="10" app:showAsAction="never"
+        android:id="@+id/action_invitations" android:title="!" app:showAsAction="always"
         />
     <item
-        android:id="@+id/action_new" android:title="Create Event"
-        android:orderInCategory="20" app:showAsAction="never"
+        android:id="@+id/action_new" android:title="+" app:showAsAction="always"
         />
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
-
 </menu>

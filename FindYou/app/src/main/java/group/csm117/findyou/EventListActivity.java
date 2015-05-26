@@ -6,11 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.FindCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,7 @@ public class EventListActivity extends ActionBarActivity
         // For now this helps with testing
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle("Manage event");
+        alertDialog.setCancelable(true);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
@@ -67,6 +69,11 @@ public class EventListActivity extends ActionBarActivity
                     case AlertDialog.BUTTON_NEGATIVE:
                         event.deleteInBackground();
                         break;
+                    case AlertDialog.BUTTON_NEUTRAL:
+                        Intent intent = new Intent(EventListActivity.this, MainActivity.class);
+                        intent.putExtra("event", event.getObjectId());
+                        startActivity(intent);
+                        break;
                 }
                 dialog.dismiss();
             }
@@ -75,22 +82,16 @@ public class EventListActivity extends ActionBarActivity
         if (event.getCreator().equals(ParseUser.getCurrentUser())) {
             alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Delete", listener);
         }
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancel", listener);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "View", listener);
         alertDialog.show();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_event_list, menu);
-
-        menu.findItem(R.id.action_settings).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                startActivity(new Intent(EventListActivity.this, SettingsActivity.class));
-                return true;
-            }
-        });
-        return true;
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_event_list, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

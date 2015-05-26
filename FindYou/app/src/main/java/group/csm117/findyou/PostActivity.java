@@ -1,15 +1,12 @@
 package group.csm117.findyou;
 
-
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,42 +17,37 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import java.util.ArrayList;
 
-/**
- * Activity which displays a login screen to the user, offering registration as well.
- */
 public class PostActivity extends Activity {
-    // UI references.
-    //private SupportMapFragment mapFragment;
-    private EditText postEditText;
-    private TextView characterCountTextView;
-    private Button postButton;
-    private ArrayList<String> users;
 
-    private int maxCharacterCount = Application.getConfigHelper().getPostMaxCharacterCount();
     private ParseGeoPoint geoPoint;
+    private EditText postEditText;
+    private Button postButton;
+    private TextView characterCountTextView;
+    private int maxCharacterCount = Application.getConfigHelper().getPostMaxCharacterCount();
     private String event;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_post);
 
         Intent intent = getIntent();
-        event = (String) intent.getExtras().getString("event");
         Location location = intent.getParcelableExtra(Application.INTENT_EXTRA_LOCATION);
+        event = (String) intent.getExtras().getString("event");
         geoPoint = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
 
         postEditText = (EditText) findViewById(R.id.post_edittext);
         postEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
             }
 
             @Override
-            public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
             }
 
             @Override
@@ -68,7 +60,8 @@ public class PostActivity extends Activity {
         characterCountTextView = (TextView) findViewById(R.id.character_count_textview);
 
         postButton = (Button) findViewById(R.id.post_button);
-        postButton.setOnClickListener(new OnClickListener() {
+        postButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 post();
             }
@@ -76,61 +69,44 @@ public class PostActivity extends Activity {
 
         updatePostButtonState();
         updateCharacterCountTextViewText();
-
-
     }
 
-    private void post () {
-        String text = postEditText.getText().toString().trim();
-
-        // Set up a progress dialog
-        final ProgressDialog dialog = new ProgressDialog(PostActivity.this);
-        dialog.setMessage("Creating Detail...");
-        dialog.show();
-
-        // Create a post.
+    private void post(){
         FindYouPost post = new FindYouPost();
-
-        // Set the location to the current user's location
-
-        users = getIntent().getStringArrayListExtra("users");
-        post.setUsersThatCanSee(users);
         post.setLocation(geoPoint);
-        if (event == null)
-            post.setEvent("DETAIL");
-        else post.setEvent(event);
-        post.setTitle("DETAIL");
+        String text = postEditText.getText().toString().trim();
         post.setText(text);
-        post.setDraggable(true);
         post.setUser(ParseUser.getCurrentUser());
-        ParseACL acl = new ParseACL();
 
-        // Give public access
+        if (event == null)
+            post.setEvent("ERROR");
+        else post.setEvent(event);
+
+        ParseACL acl = new ParseACL();
         acl.setPublicReadAccess(true);
         acl.setPublicWriteAccess(true);
         post.setACL(acl);
 
-        // Save the post
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                dialog.dismiss();
                 finish();
             }
         });
     }
 
-    private String getPostEditTextText () {
+
+    private String getPostEditTextText(){
         return postEditText.getText().toString().trim();
     }
 
-    private void updatePostButtonState () {
+    private void updatePostButtonState(){
         int length = getPostEditTextText().length();
         boolean enabled = length > 0 && length < maxCharacterCount;
         postButton.setEnabled(enabled);
     }
 
-    private void updateCharacterCountTextViewText () {
+    private void updateCharacterCountTextViewText(){
         String characterCountString = String.format("%d/%d", postEditText.length(), maxCharacterCount);
         characterCountTextView.setText(characterCountString);
     }

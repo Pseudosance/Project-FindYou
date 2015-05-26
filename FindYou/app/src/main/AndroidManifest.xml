@@ -78,30 +78,16 @@
             android:label="@string/title_activity_invite_contacts" >
         </activity>
         <activity
-            android:name=".AppLinkingActivity"
-            android:label="@string/title_activity_app_linking" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs "com.example.myapp://" -->
-                <data android:scheme="group.csm117.findyou" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".EventListActivity"
             android:label="@string/title_event_list" >
+        </activity>
+        <activity
             android:name=".InvitationsActivity"
             android:label="@string/title_activity_invitations"
             android:parentActivityName=".EventListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="group.csm117.findyou.EventListActivity" />
-        </activity>
-        <activity
-            android:name=".EventActivity"
-            android:label="@string/title_activity_event" >
         </activity>
     </application>
 

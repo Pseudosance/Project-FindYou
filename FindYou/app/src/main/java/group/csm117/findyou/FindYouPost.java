@@ -6,10 +6,6 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import org.json.JSONArray;
-
-import java.util.ArrayList;
-
 /**
  * Created by Mitchell on 5/7/2015.
  */
@@ -22,6 +18,13 @@ public class FindYouPost extends ParseObject {
     public void setText(String value){
         put("text", value);
     }
+    public ParseUser getUser(){
+        return getParseUser("user");
+    }
+    public void setUser(ParseUser value) {
+        put("user", value);
+    }
+
 
     public String getEvent() {
         return getString("Event");
@@ -31,35 +34,9 @@ public class FindYouPost extends ParseObject {
         put("Event", value);
     }
 
-    public JSONArray getUsersThatCanSee() {
-        return getJSONArray("canSee");
-    }
-
-    public void setUsersThatCanSee(ArrayList<String> value) {
-        put("canSee", value);
-    }
-
-    public Boolean getDraggable() {
-        return getBoolean("draggable");
-    }
 
     public void setDraggable(Boolean b) {
         put("draggable", b);
-    }
-
-    public String getTitle() {
-        return getString("title");
-    }
-
-    public ParseUser getUser(){
-        return getParseUser("user");
-    }
-    public void setUser(ParseUser value) {
-        put("user", value);
-    }
-
-    public void setTitle(String value) {
-        put("title", value);
     }
 
     public ParseGeoPoint getLocation() {
