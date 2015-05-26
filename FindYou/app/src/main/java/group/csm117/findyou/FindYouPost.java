@@ -35,10 +35,6 @@ public class FindYouPost extends ParseObject {
     }
 
 
-    public void setDraggable(Boolean b) {
-        put("draggable", b);
-    }
-
     public ParseGeoPoint getLocation() {
         return getParseGeoPoint("location");
     }

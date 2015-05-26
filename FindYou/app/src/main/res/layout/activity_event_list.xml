@@ -3,4 +3,6 @@
     android:name="group.csm117.findyou.EventListFragment" android:layout_width="match_parent"
     android:layout_height="match_parent" android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp" tools:context="group.csm117.findyou.EventListActivity"
-    tools:layout="@android:layout/list_content" />
+    tools:layout="@android:layout/list_content" android:background="@color/background"
+
+    />

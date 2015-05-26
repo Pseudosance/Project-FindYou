@@ -29,6 +29,8 @@
     <string name="facebook_signup">Sign up with Facebook</string>
     <string name="title_activity_invite_contacts">InviteContactsActivity</string>
     <string name="invite_contacts_contentDescription">invite contacts title image</string>
+    <string name="title_activity_app_linking">AppLinkingActivity</string>
     <string name="title_event_list">Events</string>
     <string name="title_activity_invitations">Invitations</string>
+    <string name="title_activity_event">EventActivity</string>
 </resources>

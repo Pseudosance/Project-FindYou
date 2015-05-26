@@ -55,7 +55,7 @@ public class User_friendListAdapterWithCache extends ArrayAdapter<User_friend> {
 
 
         //
-        holder.populate(friend, ((InviteContactsActivity)mContext).isLvBusy());
+        holder.populate(friend, ((InviteToEventActivity)mContext).isLvBusy());
 
         //
         return convertView;
