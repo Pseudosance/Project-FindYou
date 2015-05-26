@@ -356,6 +356,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                     }
                 }
 
+
                 ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
                 mapQuery.getInBackground(detail, new GetCallback<FindYouPost>() {
                     public void done(FindYouPost post, ParseException e) {
@@ -369,6 +370,12 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                             "Please select a detail to delete on the map.", Toast.LENGTH_LONG).show();
                     return;
                 }
+                if (!det.getUser().hasSameId(ParseUser.getCurrentUser()))  {
+                    Toast.makeText(MainActivity.this,
+                            "Error: You did not create this detail.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 ParseQuery<FindYouPost> MQ = FindYouPost.getQuery();
                 MQ.getInBackground(det.getObjectId(), new GetCallback<FindYouPost>() {
                     public void done(FindYouPost post, ParseException e) {
@@ -719,8 +726,22 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                     }
 
                     //Only show posts of the currently selected event or locations of other users
-                    if(!post.getEvent().equals(curEvent.getObjectId()) && !(post.getEvent().equals("USER") && post.getUser().equals(ParseUser.getCurrentUser().getUsername())))
+                    if(!post.getEvent().equals(curEvent.getObjectId()) && !(post.getEvent().equals("USER")))
                         continue;
+
+                    // If it is a location, only show it if that user is part of the event.
+                    List<ParseUser> joined = curEvent.getJoined();
+                    if(post.getEvent().equals("USER")) {
+                        boolean wasInvited = false;
+                        for(ParseUser user: joined) {
+                            if(user.hasSameId(post.getUser())) {
+                                wasInvited = true;
+                                break;
+                            }
+                        }
+                        if (!wasInvited)
+                            continue;
+                    }
 
                     // 3
                     toKeep.add(post.getObjectId());
@@ -758,20 +779,24 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                         }
 
                     // allow markers to only be draggable if you created them
-                    boolean b;
-                    if(post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()))
-                        b = true;
-                    else b = false;
                     if (post.getEvent().equals("USER"))
                         markerOpts =
                                 markerOpts.draggable(false).title(post.getText())
                                         .icon(BitmapDescriptorFactory.defaultMarker(
                                                 BitmapDescriptorFactory.HUE_VIOLET));
-                    else markerOpts =
-                            markerOpts.draggable(b).title(post.getText())
-                                    .snippet(post.getUser().getUsername())
-                                    .icon(BitmapDescriptorFactory.defaultMarker(
-                                            BitmapDescriptorFactory.HUE_GREEN));
+                    else if(post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                        markerOpts =
+                                markerOpts.draggable(true).title(post.getText())
+                                        .snippet(post.getUser().getUsername())
+                                        .icon(BitmapDescriptorFactory.defaultMarker(
+                                                BitmapDescriptorFactory.HUE_GREEN));
+                    } else {
+                        markerOpts =
+                                markerOpts.draggable(false).title(post.getText())
+                                        .snippet(post.getUser().getUsername())
+                                        .icon(BitmapDescriptorFactory.defaultMarker(
+                                                BitmapDescriptorFactory.HUE_RED));
+                    }
                //     }
                     // 7
                     Marker marker = mapFragment.getMap().addMarker(markerOpts);
