@@ -730,7 +730,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                         continue;
 
                     // If it is a location, only show it if that user is part of the event.
-                    List<ParseUser> joined = curEvent.getJoined();
+                    // TODO: use Event#getJoined()
+                    List<ParseUser> joined = curEvent.getJoined_DEPRECATED();
                     if(post.getEvent().equals("USER")) {
                         boolean wasInvited = false;
                         for(ParseUser user: joined) {

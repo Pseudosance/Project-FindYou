@@ -7,10 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseUser;
 
-public class EventListAdapter extends ArrayAdapter{
+public class EventListAdapter extends ArrayAdapter {
 
     private int mResourceId;
     private LayoutInflater inflater;
@@ -25,19 +27,30 @@ public class EventListAdapter extends ArrayAdapter{
 
     @Override
     public View getView (int position, View convertView, ViewGroup parent) {
-        /* create a new view of my layout and inflate it in the row */
-        convertView = (LinearLayout) inflater.inflate(mResourceId, null);
-
         Event event = (Event) getItem(position);
 
+        // Get or create cached eventView
+        EventListItemHolder eventView;
+        if (convertView == null) {
+            convertView = (LinearLayout) inflater.inflate(mResourceId, null);
+            eventView = new EventListItemHolder(convertView);
+            convertView.setTag(eventView);
+        }
+        else {
+            eventView = (EventListItemHolder) convertView.getTag();
+        }
+
         String title = event.getTitle();
-        TextView titleTextView = (TextView) convertView.findViewById(R.id.titleTextView);
-        titleTextView.setText(title);
+        eventView.getTitleTextView().setText(title);
 
         // TODO: show friends, not all joined
-        List<ParseUser> joined = event.getJoined();
-        TextView friendsTextView = (TextView) convertView.findViewById(R.id.friendsTextView);
-        friendsTextView.setText(String.format("%d friends going", joined.size()));
+        final EventListItemHolder fEventView = eventView;
+        event.getJoined(new FindCallback<ParseUser>() {
+            @Override
+            public void done(List<ParseUser> joined, ParseException e) {
+                fEventView.getFriendsTextView().setText(String.format("%d friends going", joined.size()));
+            }
+        });
 
         return convertView;
     }
