@@ -82,6 +82,9 @@
             android:label="@string/title_event_list" >
         </activity>
         <activity
+            android:name=".InviteToEventActivity"
+            android:label="InviteToEventActivity" />
+        <activity
             android:name=".InvitationsActivity"
             android:label="@string/title_activity_invitations"
             android:parentActivityName=".EventListActivity" >

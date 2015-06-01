@@ -7,15 +7,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import java.util.Collections;
 import java.util.List;
 
 
@@ -29,33 +26,6 @@ public class SettingsActivity extends Activity {
 
         setContentView(R.layout.activity_settings);
 
-        float currentSearchDistance = Application.getSearchDistance();
-        if(!availableOptions.contains(currentSearchDistance)){
-            availableOptions.add(currentSearchDistance);
-        }
-        Collections.sort(availableOptions);
-
-        //The search distance choices
-        RadioGroup searchDistanceRadioGroup = (RadioGroup) findViewById(R.id.searchdistance_radiogroup);
-        for(int index=0; index < availableOptions.size(); index++){
-            float searchDistance = availableOptions.get(index);
-
-            RadioButton button = new RadioButton(this);
-            button.setId(index);
-            button.setText(getString(R.string.settings_distance_format, (int) searchDistance));
-            searchDistanceRadioGroup.addView(button, index);
-
-            if(currentSearchDistance == searchDistance){
-                searchDistanceRadioGroup.check(index);
-            }
-        }
-
-        searchDistanceRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                Application.setSearchDistance(availableOptions.get(checkedId));
-            }
-        });
 
         // Set up the log out button click handler
         Button logoutButton = (Button) findViewById(R.id.logout_button);

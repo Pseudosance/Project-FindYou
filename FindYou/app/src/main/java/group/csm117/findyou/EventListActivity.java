@@ -63,6 +63,7 @@ public class EventListActivity extends ActionBarActivity
                 return true;
             }
         });
+
         return true;
     }
 
@@ -83,6 +84,7 @@ public class EventListActivity extends ActionBarActivity
     }
 
     private void openFriends() {
+        startActivity(new Intent(EventListActivity.this, InviteToEventActivity.class));
     }
 
     private void openInvitations() {
