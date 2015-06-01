@@ -82,7 +82,7 @@
             android:label="@string/title_event_list" >
         </activity>
         <activity
-            android:name=".InviteToEventActivity"
+            android:name=".UserContactsActivity"
             android:label="InviteToEventActivity" />
         <activity
             android:name=".InvitationsActivity"

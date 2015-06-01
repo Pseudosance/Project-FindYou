@@ -84,7 +84,7 @@ public class EventListActivity extends ActionBarActivity
     }
 
     private void openFriends() {
-        startActivity(new Intent(EventListActivity.this, InviteToEventActivity.class));
+        startActivity(new Intent(EventListActivity.this, UserContactsActivity.class));
     }
 
     private void openInvitations() {

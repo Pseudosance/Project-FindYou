@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class InviteToEventActivity extends Activity implements AbsListView.OnScrollListener {
+public class UserContactsActivity extends Activity implements AbsListView.OnScrollListener {
 
     List user_friends;
     ListView lvFriends;
@@ -32,7 +32,7 @@ public class InviteToEventActivity extends Activity implements AbsListView.OnScr
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_invite_to_event);
+        setContentView(R.layout.activity_user_contacts);
 
         // populate data
         user_friends = new ArrayList();

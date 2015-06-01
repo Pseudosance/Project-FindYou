@@ -4,20 +4,23 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="group.csm117.findyou.InviteToEventActivity"
+    tools:context="group.csm117.findyou.UserContactsActivity"
     android:background="@color/background">
 
 
     <ImageView
-        android:id="@+id/invite_contacts_title"
+        android:id="@+id/contacts_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/invite_contacts"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="-50dp"
+        android:src="@drawable/friends"
         android:layout_marginBottom="-30dp"
         android:contentDescription="@string/invite_contacts_contentDescription"
-        android:cropToPadding="false" />
+        android:cropToPadding="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 
         <ListView
@@ -26,7 +29,7 @@
             android:layout_width="fill_parent"
             android:layout_height="200dip"
             android:layout_gravity="fill_vertical"
-            android:layout_below="@+id/invite_contacts_title"
+            android:layout_below="@+id/contacts_title"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginTop="27dp"
