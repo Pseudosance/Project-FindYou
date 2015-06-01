@@ -5,10 +5,27 @@
     android:background="@color/background"
     tools:context="group.csm117.findyou.EventListActivity">
 
+    <ImageView
+        android:id="@+id/current_event_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/current_events"
+        android:contentDescription="current_event_image"
+        android:cropToPadding="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="-30dp"
+        android:paddingBottom="-45dp"
+        android:layout_marginTop="-20dp" />
+
     <group.csm117.findyou.RefreshableListViewWrapper
         android:id="@+id/refresh_wrapper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/current_event_img"
+        android:layout_alignParentBottom="true">
     </group.csm117.findyou.RefreshableListViewWrapper>
 
 </RelativeLayout>
