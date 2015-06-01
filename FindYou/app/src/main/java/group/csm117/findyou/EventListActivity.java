@@ -133,5 +133,6 @@ public class EventListActivity extends ActionBarActivity
                         newEvent.saveInBackground();
                     }
                 });
+
     }
 }
