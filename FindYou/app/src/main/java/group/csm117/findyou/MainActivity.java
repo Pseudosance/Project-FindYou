@@ -1,21 +1,9 @@
 package group.csm117.findyou;
 
-import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -26,44 +14,42 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap.CancelableCallback;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
-import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
-import android.content.DialogInterface;
-import com.facebook.appevents.AppEventsLogger;
-import com.google.android.gms.maps.GoogleMap;
 import com.parse.ParseUser;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 public class MainActivity extends FragmentActivity implements LocationListener,
@@ -83,7 +69,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     private static final int MILLISECONDS_PER_SECOND = 1000;
 
     // The update interval
-    private static final int UPDATE_INTERVAL_IN_SECONDS = 5;
+    private static final int UPDATE_INTERVAL_IN_SECONDS = 1;
 
     // A fast interval ceiling
     private static final int FAST_CEILING_IN_SECONDS = 1;
@@ -104,7 +90,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     private static final float METERS_PER_FEET = 0.3048f;
 
     // Conversion from kilometers to meters
-    private static final int METERS_PER_KILOMETER = 1000;
+    private static final int METERS_PER_KILOMETER = 100;
 
     // Initial offset for calculating the map bounds
     private static final double OFFSET_CALCULATION_INIT_DIFF = 1.0;
@@ -780,11 +766,11 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                    // else {
                         // Set up an in-range marker
                         if (oldMarker != null) {
-                            if (oldMarker.getSnippet() != null) {
-                                continue;
-                            } else {
+  //                          if (oldMarker.getSnippet() != null) {
+    //                            continue;
+      //                      } else {
                                 oldMarker.remove();
-                            }
+//                            }
                         }
 
                     // allow markers to only be draggable if you created them

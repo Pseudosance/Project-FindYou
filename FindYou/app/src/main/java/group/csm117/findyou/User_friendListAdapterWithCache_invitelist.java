@@ -60,7 +60,7 @@ public class User_friendListAdapterWithCache_invitelist extends ArrayAdapter<Use
             // download from internet
             // TODO: downloaded images may be too big, causing GC to clear heap and forget which
             // friends were selected. Or my test phone is just too underpowered...
-//            mImageDownloader.download(friend.img_url, holder.img);
+            mImageDownloader.download(friend.img_url, holder.img);
         } else {
             holder.img.setImageResource(R.drawable.spinner);
         }
