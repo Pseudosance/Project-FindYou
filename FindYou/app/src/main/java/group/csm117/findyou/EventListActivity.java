@@ -14,7 +14,6 @@ import android.widget.AdapterView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +92,8 @@ public class EventListActivity extends ActionBarActivity
 
     private void openNew() {
         // TODO: open event creation activity
-        ParseUser currentUser = ParseUser.getCurrentUser();
+        startActivity(new Intent(EventListActivity.this, EventCreationActivity.class));
+       /* ParseUser currentUser = ParseUser.getCurrentUser();
         final Event newEvent = new Event();
         newEvent.setTitle("New Event");
         newEvent.setDescription("Description");
@@ -117,7 +117,7 @@ public class EventListActivity extends ActionBarActivity
                         });
 
                     }
-                });
+                }); */
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

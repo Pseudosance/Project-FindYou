@@ -92,6 +92,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="group.csm117.findyou.EventListActivity" />
         </activity>
+        <activity
+            android:name=".testActivity"
+            android:label="@string/title_activity_test" >
+        </activity>
+        <activity
+            android:name=".EventCreationActivity"
+            android:label="@string/title_activity_event_creation" >
+        </activity>
     </application>
 
 </manifest>

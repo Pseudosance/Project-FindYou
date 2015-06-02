@@ -33,4 +33,10 @@
     <string name="title_event_list">Events</string>
     <string name="title_activity_invitations">Invitations</string>
     <string name="title_activity_event">EventActivity</string>
+    <string name="title_activity_test">testActivity</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="title_activity_event_creation">EventCreationActivity</string>
 </resources>
