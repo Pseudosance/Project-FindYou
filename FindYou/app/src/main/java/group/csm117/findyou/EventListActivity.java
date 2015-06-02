@@ -91,33 +91,7 @@ public class EventListActivity extends ActionBarActivity
     }
 
     private void openNew() {
-        // TODO: open event creation activity
         startActivity(new Intent(EventListActivity.this, EventCreationActivity.class));
-       /* ParseUser currentUser = ParseUser.getCurrentUser();
-        final Event newEvent = new Event();
-        newEvent.setTitle("New Event");
-        newEvent.setDescription("Description");
-        newEvent.setCreator(currentUser);
-        newEvent.join();
-        mRefreshWrapper.setRefreshing(true);
-        ParseUser.getQuery().whereNotEqualTo("objectId", currentUser.getObjectId())
-                .findInBackground(new FindCallback<ParseUser>() {
-                    public void done(List<ParseUser> users, ParseException e) {
-                        for (ParseUser user : users) {
-                            newEvent.invite(user);
-                        }
-                        newEvent.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e == null) {
-                                    mListAdapter.insert(newEvent, 0);
-                                }
-                                mRefreshWrapper.setRefreshing(false);
-                            }
-                        });
-
-                    }
-                }); */
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

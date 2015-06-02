@@ -1,5 +1,8 @@
 package group.csm117.findyou;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -15,6 +18,10 @@ import android.widget.ListView;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -136,20 +143,20 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
 
 
     public void createEvent(){
+        final ProgressDialog progress = ProgressDialog.show(this, "Creating Event...", "", true, true);
+
         String event_title = EventTitleEditText.getText().toString().trim();
         String event_description = EventDescriptionEditText.getText().toString().trim();
 
-        //TODO: Create Event...
-     /*   ParseUser currentUser = ParseUser.getCurrentUser();
+        ParseUser currentUser = ParseUser.getCurrentUser();
         final Event newEvent = new Event();
         newEvent.setTitle(event_title);
         newEvent.setDescription(event_description);
         newEvent.setCreator(currentUser);
         newEvent.join();
-        mRefreshWrapper.setRefreshing(true);
+        //TODO: Invite those that were selected from the scroll list instead of everyone
         ParseUser.getQuery().whereNotEqualTo("objectId", currentUser.getObjectId())
                 .findInBackground(new FindCallback<ParseUser>() {
-                //TODO: Invite those that were selected from the scroll list
                     public void done(List<ParseUser> users, ParseException e) {
                         for (ParseUser user : users) {
                             newEvent.invite(user);
@@ -157,17 +164,25 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
                         newEvent.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
+                                progress.dismiss();
                                 if (e == null) {
-                                    mListAdapter.insert(newEvent, 0);
+                                    // Success. View event.
+                                    Intent intent = new Intent(EventCreationActivity.this, MainActivity.class);
+                                    intent.putExtra("event", newEvent.getObjectId());
+                                    EventCreationActivity.this.finish();
+                                    startActivity(intent);
+                                } else {
+                                    // Failure.
+                                    AlertDialog alert = new AlertDialog.Builder(EventCreationActivity.this).create();
+                                    alert.setTitle("Error");
+                                    alert.setMessage(e.getMessage());
+                                    alert.setCancelable(true);
+                                    alert.show();
                                 }
-                                mRefreshWrapper.setRefreshing(false);
                             }
                         });
-
                     }
                 });
-         */
-
     }
 
     @Override
