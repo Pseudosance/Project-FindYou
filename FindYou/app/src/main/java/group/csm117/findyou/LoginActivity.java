@@ -13,10 +13,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +65,7 @@ public class LoginActivity extends Activity {
         Button facebookButton = (Button) findViewById(R.id.facebook_login);
         facebookButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-               FBlogin();
+                FBlogin();
             }
         });
     }
@@ -127,19 +133,36 @@ public class LoginActivity extends Activity {
             public void done(ParseUser user, ParseException err) {
                 if (user == null) {
                     Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
-                } else if (user.isNew()) {
-                    Log.d("MyApp", "User signed up and logged in through Facebook!");
-                    Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
                 } else {
-                    Log.d("MyApp", "User logged in through Facebook!");
+                    if (user.isNew()) {
+                        Log.d("MyApp", "User signed up and logged in through Facebook!");
+                    } else {
+                        Log.d("MyApp", "User logged in through Facebook!");
+                    }
+                    if (user.get("fbid") == null) {
+                        saveFacebookIdInBackground();
+                    }
                     Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
             }
         });
+    }
+
+    private void saveFacebookIdInBackground() {
+        GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        ParseUser.getCurrentUser().put("fbid", object.optString("id"));
+                        ParseUser.getCurrentUser().saveInBackground();
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id");
+        request.setParameters(parameters);
+        request.executeAsync();
     }
 
 }

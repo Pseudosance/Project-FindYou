@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -37,7 +38,8 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
     private EditText EventTitleEditText;
     private EditText EventDescriptionEditText;
 
-    List user_friends;
+    List<User_friend> user_friends;
+    List<User_friend> mInvitedFriends;
     ListView lvFriends;
     User_friendListAdapterWithCache_invitelist adapterFriends;
 
@@ -61,6 +63,7 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
 
         // populate data
         user_friends = new ArrayList();
+        mInvitedFriends = new ArrayList();
         GraphRequest request = GraphRequest.newMyFriendsRequest(
                 AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONArrayCallback() {
@@ -77,7 +80,7 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
                                 Log.d("MyApp", "Inside loop ");
                                 JSONObject e = rows.getJSONObject(i);
 
-                                user_friends.add(new User_friend(e.optString("name"), e.getJSONObject("picture").getJSONObject("data").getString("url")));
+                                user_friends.add(new User_friend(e.optString("id"), e.optString("name"), e.getJSONObject("picture").getJSONObject("data").getString("url")));
 
                             }
                         } catch (JSONException e) {
@@ -108,14 +111,25 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
         lvFriends.setAdapter(adapterFriends);
         lvFriends.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                //args2 is the listViews Selected index
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 // Send Invite
-                Log.d("MyApp", "User clicked on list item!");
-
+                User_friend friend  = user_friends.get(position);
+                CheckBox checkbox = (CheckBox)view.findViewById(R.id.checkbox);
+                checkbox.setChecked(!checkbox.isChecked());
+                if (checkbox.isChecked()) {
+                    mInvitedFriends.add(friend);
+                } else {
+                    mInvitedFriends.remove(friend);
+                }
             }
         });
 
+    }
+
+    public boolean isLvPositionSelected(int position) {
+        boolean selected = mInvitedFriends.contains(user_friends.get(position));
+        Log.d("selected?", "" + selected);
+        return selected;
     }
 
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -153,9 +167,16 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
         newEvent.setTitle(event_title);
         newEvent.setDescription(event_description);
         newEvent.setCreator(currentUser);
+        // Creator auto joins
         newEvent.join();
-        //TODO: Invite those that were selected from the scroll list instead of everyone
-        ParseUser.getQuery().whereNotEqualTo("objectId", currentUser.getObjectId())
+        // Invites
+        ArrayList<String> invitedFbids = new ArrayList();
+        for (User_friend friend : mInvitedFriends) {
+            if (friend.id != null) {
+                invitedFbids.add(friend.id);
+            }
+        }
+        ParseUser.getQuery().whereContainedIn("fbid", invitedFbids)
                 .findInBackground(new FindCallback<ParseUser>() {
                     public void done(List<ParseUser> users, ParseException e) {
                         for (ParseUser user : users) {
