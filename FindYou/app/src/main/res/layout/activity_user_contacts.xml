@@ -13,14 +13,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/friends"
-        android:layout_marginBottom="-30dp"
+        android:layout_marginBottom="-40dp"
         android:contentDescription="@string/invite_contacts_contentDescription"
         android:cropToPadding="false"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="-20dp" />
 
 
         <ListView
@@ -33,7 +34,19 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginTop="27dp"
-            android:layout_alignParentBottom="true">
+            android:layout_above="@+id/invite_friends_button">
         </ListView>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:text="Invite Friends to FindYou"
+        android:id="@+id/invite_friends_button"
+        android:background="@drawable/layer_fb_button"
+        style="@style/button_style"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="5dp" />
 
 </RelativeLayout>

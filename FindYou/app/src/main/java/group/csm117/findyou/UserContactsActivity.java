@@ -1,11 +1,13 @@
 package group.csm117.findyou;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.facebook.AccessToken;
@@ -33,6 +35,14 @@ public class UserContactsActivity extends Activity implements AbsListView.OnScro
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_contacts);
+
+        // Set up the submit button click handler
+        Button inviteButton = (Button) findViewById(R.id.invite_friends_button);
+        inviteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                startActivity(new Intent(UserContactsActivity.this, InviteContactsActivity.class));
+            }
+        });
 
         // populate data
         user_friends = new ArrayList();
