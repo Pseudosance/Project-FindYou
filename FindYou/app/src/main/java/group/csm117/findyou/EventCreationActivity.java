@@ -74,7 +74,9 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
                         // Application code for users friends
                         try {
                             Log.d("MyApp", "attemping to grab friends");
+                            if (rows !=null)
                             Log.d("MyAPP", "number of rows: " + rows.length());
+                            if (rows !=null)
                             for(int i=0; i<rows.length(); i++){
 
                                 Log.d("MyApp", "Inside loop ");

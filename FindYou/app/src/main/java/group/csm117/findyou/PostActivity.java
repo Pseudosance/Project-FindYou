@@ -75,6 +75,7 @@ public class PostActivity extends Activity {
         FindYouPost post = new FindYouPost();
         post.setLocation(geoPoint);
         String text = postEditText.getText().toString().trim();
+        post.setIsEvent(false);
         post.setText(text);
         post.setUser(ParseUser.getCurrentUser());
 

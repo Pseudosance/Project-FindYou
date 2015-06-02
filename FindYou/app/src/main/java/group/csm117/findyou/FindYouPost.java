@@ -18,6 +18,12 @@ public class FindYouPost extends ParseObject {
     public void setText(String value){
         put("text", value);
     }
+    public Boolean getIsEvent(){
+        return getBoolean("isEvent");
+    }
+    public void setIsEvent(Boolean value){
+        put("isEvent", value);
+    }
     public ParseUser getUser(){
         return getParseUser("user");
     }

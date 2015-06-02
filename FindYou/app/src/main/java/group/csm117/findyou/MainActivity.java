@@ -365,7 +365,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                         }
                     }
                 });
-                if ((det == null) || (det.getEvent().equals("USER")) || (det.getEvent().equals("ERROR"))) {
+                if ((det == null) || (det.getEvent().equals("USER")) || det.getIsEvent() || (det.getEvent().equals("ERROR"))) {
                     Toast.makeText(MainActivity.this,
                             "Please select a detail to delete on the map.", Toast.LENGTH_LONG).show();
                     return;
@@ -713,6 +713,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                 // 1
                 Set<String> toKeep = new HashSet<String>();
                 FindYouPost myLocation = null;
+                FindYouPost myEvent = null;
 
                 // loop through results of query
                 for (FindYouPost post : objects) {
@@ -722,6 +723,13 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                         if (post.getEvent().equals("USER") && post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
                             myLocation = post;
                             continue;
+                        }
+                    }
+
+                    // check if this is the current Event marker
+                    if (post.getEvent() != null) {
+                        if (post.getEvent().equals(curEvent.getObjectId()) && post.getIsEvent()) {
+                            myEvent = post;
                         }
                     }
 
@@ -785,13 +793,25 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                                 markerOpts.draggable(false).title(post.getText())
                                         .icon(BitmapDescriptorFactory.defaultMarker(
                                                 BitmapDescriptorFactory.HUE_VIOLET));
-                    else if(post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                    else if(post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && !post.getIsEvent()) {
                         markerOpts =
                                 markerOpts.draggable(true).title(post.getText())
                                         .snippet(post.getUser().getUsername())
                                         .icon(BitmapDescriptorFactory.defaultMarker(
                                                 BitmapDescriptorFactory.HUE_GREEN));
-                    } else {
+                    } else if (post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && post.getIsEvent()) {
+                        markerOpts =
+                                markerOpts.draggable(true).title(post.getText())
+                                        .snippet(post.getUser().getUsername())
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                    }
+                    else if (post.getIsEvent()) {
+                        markerOpts =
+                                markerOpts.draggable(false).title(post.getText())
+                                        .snippet(post.getUser().getUsername())
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                    }
+                    else {
                         markerOpts =
                                 markerOpts.draggable(false).title(post.getText())
                                         .snippet(post.getUser().getUsername())
@@ -804,6 +824,32 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                     mapMarkers.put(post.getObjectId(), marker);
                 }
                 // 9
+
+                // make the marker for the event
+                if (myEvent == null) {
+                    myEvent = new FindYouPost();
+                    myEvent.setLocation(myPoint);
+                    myEvent.setText(curEvent.getTitle());
+                    myEvent.setEvent(curEvent.getObjectId());
+                    myEvent.setIsEvent(true);
+                    myEvent.setUser(ParseUser.getCurrentUser());
+                    ParseACL acl = new ParseACL();
+                    acl.setPublicReadAccess(true);
+                    acl.setPublicWriteAccess(true);
+                    myEvent.setACL(acl);
+                    myEvent.saveInBackground();
+
+                    MarkerOptions markerOpts =
+                            new MarkerOptions().position(new LatLng(myEvent.getLocation().getLatitude(), myEvent
+                                    .getLocation().getLongitude()));
+                    markerOpts =
+                            markerOpts.title(myEvent.getText()).draggable(true)
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                    Marker marker = mapFragment.getMap().addMarker(markerOpts);
+                    mapMarkers.put(myEvent.getObjectId(), marker);
+                    toKeep.add(myEvent.getObjectId());
+
+                }
 
 
                 //make sure the user's current location is updated and displayed.
@@ -825,7 +871,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
           myLocation = new FindYouPost();
             myLocation.setLocation(myPoint);
             myLocation.setText(ParseUser.getCurrentUser().getUsername() + " is here.");
-          myLocation.setEvent("USER");
+            myLocation.setEvent("USER");
+            myLocation.setIsEvent(false);
           myLocation.setUser(ParseUser.getCurrentUser());
           ParseACL acl = new ParseACL();
           acl.setPublicReadAccess(true);
