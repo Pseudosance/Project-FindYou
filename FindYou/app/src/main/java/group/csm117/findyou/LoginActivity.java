@@ -138,9 +138,7 @@ public class LoginActivity extends Activity {
                     } else {
                         Log.d("MyApp", "User logged in through Facebook!");
                     }
-                   /* if (user.get("fbid") == null) {
-                        saveFacebookIdInBackground();
-                    }*/
+                    saveFacebookIdInBackground();
                     Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);

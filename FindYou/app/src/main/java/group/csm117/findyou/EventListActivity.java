@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -22,7 +24,7 @@ public class EventListActivity extends ActionBarActivity
         implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     final private List<Event> mEvents = new ArrayList();
-
+    private TextView mHeaderTextView;
     private RefreshableListViewWrapper mRefreshWrapper;
     private EventListAdapter mListAdapter;
 
@@ -39,6 +41,12 @@ public class EventListActivity extends ActionBarActivity
         mRefreshWrapper = (RefreshableListViewWrapper) findViewById(R.id.refresh_wrapper);
         mRefreshWrapper.setOnRefreshListener(this);
         mRefreshWrapper.getListView().setOnItemClickListener(this);
+
+        View headerView = (View)getLayoutInflater().inflate(R.layout.event_list_header, mRefreshWrapper.getListView(), false);
+        mHeaderTextView = (TextView) headerView.findViewById(R.id.header_text_view);
+        mHeaderTextView.setText("Loading...");
+        mRefreshWrapper.getListView().addHeaderView(headerView, null, false);
+
         mListAdapter = new EventListAdapter(this, R.layout.event_list_item, mEvents);
         mRefreshWrapper.getListView().setAdapter(mListAdapter);
 
@@ -106,6 +114,15 @@ public class EventListActivity extends ActionBarActivity
                         if (e == null) {
                             mListAdapter.clear();
                             mListAdapter.addAll(list);
+                            mHeaderTextView.setText("No events");
+                            if (list.size() == 0) {
+                                mHeaderTextView.setVisibility(View.VISIBLE);
+                            } else {
+                                mHeaderTextView.setVisibility(View.GONE);
+                            }
+                        } else {
+                            mHeaderTextView.setVisibility(View.VISIBLE);
+                            mHeaderTextView.setText("Error: " + e.getMessage());
                         }
                         mRefreshWrapper.setRefreshing(false);
                     }
@@ -113,7 +130,8 @@ public class EventListActivity extends ActionBarActivity
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+    public void onItemClick(AdapterView<?> parent, View view, final int cellPosition, long id) {
+        final int position = cellPosition - 1;
         final Event event = mEvents.get(position);
 
         // TODO: go to edit view

@@ -7,6 +7,7 @@ public class EventListItemHolder {
 
     private View mView;
     private TextView mTitleTextView;
+    private TextView mDesciptionTextView;
     private TextView mFriendsTextView;
 
     public EventListItemHolder(View view) {
@@ -22,6 +23,13 @@ public class EventListItemHolder {
             mTitleTextView = (TextView) mView.findViewById(R.id.title_text_view);
         }
         return mTitleTextView;
+    }
+
+    public TextView getDescriptionTextView () {
+        if (mDesciptionTextView == null) {
+            mDesciptionTextView = (TextView) mView.findViewById(R.id.description_text_view);
+        }
+        return mDesciptionTextView;
     }
 
     public TextView getFriendsTextView () {

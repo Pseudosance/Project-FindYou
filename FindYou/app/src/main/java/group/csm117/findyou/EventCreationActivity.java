@@ -72,6 +72,9 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
                             JSONArray rows,
                             GraphResponse response) {
                         // Application code for users friends
+                        if (rows == null) {
+                            return;
+                        }
                         try {
                             Log.d("MyApp", "attemping to grab friends");
                             if (rows !=null)

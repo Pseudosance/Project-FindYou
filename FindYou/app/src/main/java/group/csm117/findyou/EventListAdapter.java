@@ -40,15 +40,21 @@ public class EventListAdapter extends ArrayAdapter {
             eventView = (EventListItemHolder) convertView.getTag();
         }
 
-        String title = event.getTitle();
-        eventView.getTitleTextView().setText(title);
-
-        // TODO: show friends, not all joined
+        // Fill data
+        eventView.getTitleTextView().setText(event.getTitle());
+        eventView.getDescriptionTextView().setText(event.getDescription());
         final EventListItemHolder fEventView = eventView;
         event.getJoined(new FindCallback<ParseUser>() {
             @Override
             public void done(List<ParseUser> joined, ParseException e) {
-                fEventView.getFriendsTextView().setText(String.format("%d friends going", joined.size()));
+                int count = joined.size();
+                String text;
+                if (count == 1) {
+                    text = "1 person going";
+                } else {
+                    text = String.format("%d people going", count);
+                }
+                fEventView.getFriendsTextView().setText(text);
             }
         });
 
