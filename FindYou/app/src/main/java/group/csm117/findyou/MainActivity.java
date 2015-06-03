@@ -201,70 +201,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        //ParseQueryAdapter<FindYouPost> adapter = new ParseQueryAdapter<FindYouPost>(this, FindYouPost.class);
-       // adapter.setTextKey("text");
-       // ListView postsListView = (ListView) this.findViewById(R.id.posts_listview);
-       // postsListView.setAdapter(adapter);
-/*
-        ParseQueryAdapter.QueryFactory<FindYouPost> factory =
-                new ParseQueryAdapter.QueryFactory<FindYouPost>() {
-                    public ParseQuery<FindYouPost> create() {
-                        Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
-                        ParseQuery<FindYouPost> query = FindYouPost.getQuery();
-                        query.include("user");
-                        query.orderByDescending("createdAt");
-                        query.whereWithinKilometers("location", geoPointFromLocation(myLoc), radius
-                                * METERS_PER_FEET / METERS_PER_KILOMETER);
-                        query.setLimit(MAX_POST_SEARCH_RESULTS);
-                        return query;
-                    }
-                };
-
-        postsQueryAdapter = new ParseQueryAdapter<FindYouPost>(this, factory) {
-            @Override
-            public View getItemView(FindYouPost post, View view, ViewGroup parent) {
-                if (view == null) {
-                    view = View.inflate(getContext(), R.layout.findyou_post_item, null);
-                }
-                TextView contentView = (TextView) view.findViewById(R.id.content_view);
-                TextView usernameView = (TextView) view.findViewById(R.id.username_view);
-                contentView.setText(post.getText());
-                usernameView.setText(post.getUser().getUsername());
-                return view;
-            }
-        };
-
-        postsQueryAdapter.setAutoload(false);
-        postsQueryAdapter.setPaginationEnabled(false);*/
-/*
-        // Attach the query adapter to the view
-        ListView postsListView = (ListView) findViewById(R.id.posts_listview);
-        postsListView.setAdapter(postsQueryAdapter);
-
-        postsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final FindYouPost item = postsQueryAdapter.getItem(position);
-                selectedPostObjectId = item.getObjectId();
-                mapFragment.getMap().animateCamera(
-                        CameraUpdateFactory.newLatLng(new LatLng(item.getLocation().getLatitude(), item
-                                .getLocation().getLongitude())), new GoogleMap.CancelableCallback() {
-                            public void onFinish() {
-                                Marker marker = mapMarkers.get(item.getObjectId());
-                                if (marker != null) {
-                                    marker.showInfoWindow();
-                              }
-                            }
-
-                            public void onCancel() {
-                            }
-                        });
-                Marker marker = mapMarkers.get(item.getObjectId());
-                if (marker != null) {
-                    marker.showInfoWindow();
-               }
-            }
-        });
-*/
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         // Enable the current location "blue dot"
@@ -333,13 +269,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         Button deleteButton = (Button) findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                // Only allow posts if we have a location
-                Location myLoc = (currentLocation == null) ? lastLocation : currentLocation;
-                if (myLoc == null) {
-                    Toast.makeText(MainActivity.this,
-                            "Please try again after your location appears on the map.", Toast.LENGTH_LONG).show();
-                    return;
-                }
                 // get post id of the marker
                 String detail = null;
                 for(String postID: mapMarkers.keySet()) {
@@ -349,43 +278,43 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                     }
                 }
 
-
                 ParseQuery<FindYouPost> mapQuery = FindYouPost.getQuery();
                 mapQuery.getInBackground(detail, new GetCallback<FindYouPost>() {
                     public void done(FindYouPost post, ParseException e) {
                         if (e == null) {
                             det = post;
+                            if ((det == null) || (det.getEvent().equals("USER")) || det.getIsEvent() || (det.getEvent().equals("ERROR"))) {
+                                Toast.makeText(MainActivity.this,
+                                        "Please select a detail to delete on the map.", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            if (!det.getUser().hasSameId(ParseUser.getCurrentUser()))  {
+                                Toast.makeText(MainActivity.this,
+                                        "Error: You did not create this detail.", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+
+                            ParseQuery<FindYouPost> MQ = FindYouPost.getQuery();
+                            MQ.getInBackground(det.getObjectId(), new GetCallback<FindYouPost>() {
+                                        public void done(FindYouPost post, ParseException e) {
+                                            if (e == null) {
+                                                // delete the detail
+                                                final FindYouPost p = post;
+                                                try {
+                                                    post.delete();
+                                                } catch (Exception ex) {
+                                                    Toast.makeText(MainActivity.this,
+                                                            "Cannot delete.", Toast.LENGTH_LONG).show();
+                                                }
+                                                mapMarkers.get(post.getObjectId()).remove();
+                                            }
+                                        }
+                                    }
+                            );
                         }
                     }
                 });
-                if ((det == null) || (det.getEvent().equals("USER")) || det.getIsEvent() || (det.getEvent().equals("ERROR"))) {
-                    Toast.makeText(MainActivity.this,
-                            "Please select a detail to delete on the map.", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (!det.getUser().hasSameId(ParseUser.getCurrentUser()))  {
-                    Toast.makeText(MainActivity.this,
-                            "Error: You did not create this detail.", Toast.LENGTH_LONG).show();
-                    return;
-                }
 
-                ParseQuery<FindYouPost> MQ = FindYouPost.getQuery();
-                MQ.getInBackground(det.getObjectId(), new GetCallback<FindYouPost>() {
-                    public void done(FindYouPost post, ParseException e) {
-                        if (e == null) {
-                            // delete the detail
-                            final FindYouPost p = post;
-                                try {
-                                    post.delete();
-                                } catch (Exception ex) {
-                                    Toast.makeText(MainActivity.this,
-                                            "Cannot delete.", Toast.LENGTH_LONG).show();
-                                }
-                                mapMarkers.get(post.getObjectId()).remove();
-                            }
-                        }
-                    }
-                );
             }
         });
 
