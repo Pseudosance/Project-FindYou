@@ -46,21 +46,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add Detail"
-            android:layout_marginLeft="70dp"
             android:id="@+id/post_button"
-            android:background="#00A1F4"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse"
-            android:clickable="true" />
-
+            android:background="@drawable/primary_button"
+            android:layout_marginLeft="15dp"
+            style="@style/button_style"
+            android:textSize="15sp" />
         <Button
-            android:id="@+id/delete_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
             android:text="Delete Detail"
-            android:background="#00A1F4"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse"
-            android:clickable="true" />
+            android:id="@+id/delete_button"
+            android:background="@drawable/primary_button"
+            android:layout_marginLeft="15dp"
+            style="@style/button_style"
+            android:textSize="15sp" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Friends"
+            android:id="@+id/invite_button"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/primary_button"
+            style="@style/button_style"
+            android:textSize="15sp" />
     </LinearLayout>
 
 </LinearLayout>

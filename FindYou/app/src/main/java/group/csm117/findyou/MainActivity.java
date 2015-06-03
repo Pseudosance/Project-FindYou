@@ -264,6 +264,17 @@ public class MainActivity extends FragmentActivity implements LocationListener,
             }
         });
 
+        // Set up the handler for the post button click
+        Button inviteButton = (Button) findViewById(R.id.invite_button);
+        inviteButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AddFriendsToEventActivity.class);
+                Intent i = getIntent();
+                String eve = i.getStringExtra("event");
+                intent.putExtra("event", eve);
+                startActivity(intent);
+            }
+        });
 
         // Set up the handler for the delete button click
         Button deleteButton = (Button) findViewById(R.id.delete_button);

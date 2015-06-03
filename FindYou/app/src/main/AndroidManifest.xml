@@ -54,6 +54,10 @@
             android:label="@string/title_activity_sign_up"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".AddFriendsToEventActivity"
+            android:label="@string/title_activity_sign_up"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".DispatchActivity"
             android:noHistory="true" >
             <intent-filter>
