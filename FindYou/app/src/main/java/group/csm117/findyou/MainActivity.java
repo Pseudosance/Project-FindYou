@@ -301,6 +301,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                 if (e == null) {
                     TextView textv = (TextView) findViewById(R.id.textView);
                     textv.setText(ev.getTitle());
+                    TextView textvw = (TextView) findViewById(R.id.textView2);
+                    textvw.setText(ev.getDescription());
                     curEvent = ev;
                 }
             }
@@ -790,13 +792,13 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                                                                     BitmapDescriptorFactory.HUE_GREEN));
                                         } else if (p.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && p.getIsEvent()) {
                                             markerOpts =
-                                                    markerOpts.draggable(true).title(p.getText())
+                                                    markerOpts.draggable(true).title(curEvent.getDescription())
                                                             .snippet(name)
                                                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
                                         }
                                         else if (p.getIsEvent()) {
                                             markerOpts =
-                                                    markerOpts.draggable(false).title(p.getText())
+                                                    markerOpts.draggable(false).title(curEvent.getDescription())
                                                             .snippet(name)
                                                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
                                         }
