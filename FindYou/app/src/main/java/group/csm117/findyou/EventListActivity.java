@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import com.parse.CountCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -24,6 +25,8 @@ public class EventListActivity extends ActionBarActivity
         implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     final private List<Event> mEvents = new ArrayList();
+
+    private TextView mInvitationsBadgeView;
     private TextView mHeaderTextView;
     private RefreshableListViewWrapper mRefreshWrapper;
     private EventListAdapter mListAdapter;
@@ -55,6 +58,13 @@ public class EventListActivity extends ActionBarActivity
         onRefresh();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mRefreshWrapper.setRefreshing(true);
+        onRefresh();
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Menu
 
@@ -63,11 +73,21 @@ public class EventListActivity extends ActionBarActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_event_list, menu);
 
-
         menu.findItem(R.id.action_settings).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
                 startActivity(new Intent(EventListActivity.this, SettingsActivity.class));
                 return true;
+            }
+        });
+
+        // Custom invitation button
+        final MenuItem invitationsMI = menu.findItem(R.id.action_invitations);
+        invitationsMI.setActionView(R.layout.action_invitations);
+        mInvitationsBadgeView = (TextView) invitationsMI.getActionView().findViewById(R.id.action_badge);
+        mInvitationsBadgeView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventListActivity.this.onOptionsItemSelected(invitationsMI);
             }
         });
 
@@ -107,6 +127,7 @@ public class EventListActivity extends ActionBarActivity
 
     @Override
     public void onRefresh() {
+        // Get Joined
         Event.getQuery().whereEqualTo("joined", ParseUser.getCurrentUser())
                 .findInBackground(new FindCallback<Event>() {
                     @Override
@@ -127,6 +148,13 @@ public class EventListActivity extends ActionBarActivity
                         mRefreshWrapper.setRefreshing(false);
                     }
                 });
+        // Get invitations count
+        Event.getQuery().whereEqualTo("invited", ParseUser.getCurrentUser()).countInBackground(new CountCallback() {
+            @Override
+            public void done(int i, ParseException e) {
+                mInvitationsBadgeView.setText(String.valueOf(i));
+            }
+        });
     }
 
     @Override

@@ -9,4 +9,5 @@
     <color name="success_message">#FAD4CD</color>
     <color name="error_message">#A5D6A7</color>
     <color name="background">#FF2CC4CE</color>
+    <color name="invitations">#C50039</color>
 </resources>

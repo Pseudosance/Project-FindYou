@@ -9,8 +9,8 @@
         app:showAsAction="always" />
 
     <item android:id="@+id/action_invitations"
+        android:actionLayout="@layout/action_invitations"
         android:title="Invites"
-        android:icon="@drawable/number_icon2"
         app:showAsAction="always" />
 
     <item android:id="@+id/action_new"

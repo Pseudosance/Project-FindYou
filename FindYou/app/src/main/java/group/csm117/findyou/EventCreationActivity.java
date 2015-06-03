@@ -195,6 +195,7 @@ public class EventCreationActivity extends ActionBarActivity implements AbsListV
                                     // Success. View event.
                                     Intent intent = new Intent(EventCreationActivity.this, MainActivity.class);
                                     intent.putExtra("event", newEvent.getObjectId());
+                                    EventCreationActivity.this.setResult(RESULT_OK, null);
                                     EventCreationActivity.this.finish();
                                     startActivity(intent);
                                 } else {
