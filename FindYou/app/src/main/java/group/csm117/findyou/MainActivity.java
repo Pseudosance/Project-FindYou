@@ -48,6 +48,8 @@ import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -667,16 +669,16 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                     }
 
                     //Only show posts of the currently selected event or locations of other users
-                    if(!post.getEvent().equals(curEvent.getObjectId()) && !(post.getEvent().equals("USER")))
+                    if (!post.getEvent().equals(curEvent.getObjectId()) && !(post.getEvent().equals("USER")))
                         continue;
 
                     // If it is a location, only show it if that user is part of the event.
                     // TODO: use Event#getJoined()
                     List<ParseUser> joined = curEvent.getJoined_DEPRECATED();
-                    if(post.getEvent().equals("USER")) {
+                    if (post.getEvent().equals("USER")) {
                         boolean wasInvited = false;
-                        for(ParseUser user: joined) {
-                            if(user.hasSameId(post.getUser())) {
+                        for (ParseUser user : joined) {
+                            if (user.hasSameId(post.getUser())) {
                                 wasInvited = true;
                                 break;
                             }
@@ -693,73 +695,150 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 
                     // skip marker update if position is the same
                     if (oldMarker != null)
-                        if((oldMarker.getPosition().latitude == post.getLocation().getLatitude()) && (oldMarker.getPosition().longitude == post.getLocation().getLongitude()))
+                        if ((oldMarker.getPosition().latitude == post.getLocation().getLatitude()) && (oldMarker.getPosition().longitude == post.getLocation().getLongitude()))
                             continue;
 
-                        // Set up an in-range marker
-                        if (oldMarker != null) {
-  //                          if (oldMarker.getSnippet() != null) {
-    //                            continue;
-      //                      } else {
-                                oldMarker.remove();
+                    // Set up an in-range marker
+                    if (oldMarker != null) {
+                        //                          if (oldMarker.getSnippet() != null) {
+                        //                            continue;
+                        //                      } else {
+                        oldMarker.remove();
 //                            }
-                        }
+                    }
                     // Get facebook name
                     final FindYouPost p = post;
-                    GraphRequest request = GraphRequest.newMeRequest(
-                            AccessToken.getCurrentAccessToken(),
-                            new GraphRequest.GraphJSONObjectCallback() {
-                                @Override
-                                public void onCompleted(
-                                        JSONObject object,
-                                        GraphResponse response) {
-                                    try {
-                                        String name = object.optString("name");
-                                        MarkerOptions markerOpts =
-                                                new MarkerOptions().position(new LatLng(p.getLocation().getLatitude(), p
-                                                        .getLocation().getLongitude()));
-                                        // allow markers to only be draggable if you created them. Color according to type.
-                                        if (p.getEvent().equals("USER")) {
-                                            markerOpts =
-                                                    markerOpts.draggable(false).title(p.getText())
-                                                            .icon(BitmapDescriptorFactory.defaultMarker(
-                                                                    BitmapDescriptorFactory.HUE_VIOLET));
-                                        } else if(p.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && !p.getIsEvent()) {
-                                            markerOpts =
-                                                    markerOpts.draggable(true).title(p.getText())
-                                                            .snippet(name)
-                                                            .icon(BitmapDescriptorFactory.defaultMarker(
-                                                                    BitmapDescriptorFactory.HUE_GREEN));
-                                        } else if (p.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && p.getIsEvent()) {
-                                            markerOpts =
-                                                    markerOpts.draggable(true).title(curEvent.getDescription())
-                                                            .snippet(name)
-                                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                    if (!(p.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()))) {
+                        GraphRequest request = GraphRequest.newMyFriendsRequest(
+                                AccessToken.getCurrentAccessToken(),
+                                new GraphRequest.GraphJSONArrayCallback() {
+                                    @Override
+                                    public void onCompleted(
+                                            JSONArray rows,
+                                            GraphResponse response) {
+                                        // Application code for users friends
+                                        if (rows == null) {
+                                            return;
                                         }
-                                        else if (p.getIsEvent()) {
-                                            markerOpts =
-                                                    markerOpts.draggable(false).title(curEvent.getDescription())
-                                                            .snippet(name)
-                                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                                        try {
+                                            Log.d("MyApp", "attemping to grab friends");
+                                            if (rows != null)
+                                                Log.d("MyAPP", "number of rows: " + rows.length());
+                                            if (rows != null)
+                                                for (int i = 0; i < rows.length(); i++) {
+
+                                                    Log.d("MyApp", "Inside loop ");
+                                                    JSONObject e = rows.getJSONObject(i);
+
+                                                    if (p.getUser().get("fbid").equals(e.optString("id"))) {
+                                                        try {
+                                                            String name = e.optString("name");
+                                                            MarkerOptions markerOpts =
+                                                                    new MarkerOptions().position(new LatLng(p.getLocation().getLatitude(), p
+                                                                            .getLocation().getLongitude()));
+                                                            // allow markers to only be draggable if you created them. Color according to type.
+                                                            if (p.getEvent().equals("USER")) {
+                                                                markerOpts =
+                                                                        markerOpts.draggable(false).title(p.getText())
+                                                                                .icon(BitmapDescriptorFactory.defaultMarker(
+                                                                                        BitmapDescriptorFactory.HUE_VIOLET));
+                                                            } else if (p.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && !p.getIsEvent()) {
+                                                                markerOpts =
+                                                                        markerOpts.draggable(true).title(p.getText())
+                                                                                .snippet(name)
+                                                                                .icon(BitmapDescriptorFactory.defaultMarker(
+                                                                                        BitmapDescriptorFactory.HUE_GREEN));
+                                                            } else if (p.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && p.getIsEvent()) {
+                                                                markerOpts =
+                                                                        markerOpts.draggable(true).title(curEvent.getDescription())
+                                                                                .snippet(name)
+                                                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                                                            } else if (p.getIsEvent()) {
+                                                                markerOpts =
+                                                                        markerOpts.draggable(false).title(curEvent.getDescription())
+                                                                                .snippet(name)
+                                                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                                                            } else {
+                                                                markerOpts =
+                                                                        markerOpts.draggable(false).title(p.getText())
+                                                                                .snippet(name)
+                                                                                .icon(BitmapDescriptorFactory.defaultMarker(
+                                                                                        BitmapDescriptorFactory.HUE_RED));
+                                                            }
+                                                            //     }
+                                                            // 7
+                                                            Marker marker = mapFragment.getMap().addMarker(markerOpts);
+                                                            mapMarkers.put(p.getObjectId(), marker);
+                                                        } catch (Exception ex) {
+                                                        }
+                                                    }
+
+                                                }
+                                        } catch (JSONException e) {
+                                            Log.e("Error", "json " + e.toString());
                                         }
-                                        else {
-                                            markerOpts =
-                                                    markerOpts.draggable(false).title(p.getText())
-                                                            .snippet(name)
-                                                            .icon(BitmapDescriptorFactory.defaultMarker(
-                                                                    BitmapDescriptorFactory.HUE_RED));
+                                    }
+                                });
+
+                        Bundle parameters = new Bundle();
+                        parameters.putString("fields", "picture.type(small),id,name,link");
+                        request.setParameters(parameters);
+                        request.executeAsync();
+                    } else {
+                        GraphRequest request = GraphRequest.newMeRequest(
+                                AccessToken.getCurrentAccessToken(),
+                                new GraphRequest.GraphJSONObjectCallback() {
+                                    @Override
+                                    public void onCompleted(
+                                            JSONObject object,
+                                            GraphResponse response) {
+                                        try {
+                                            String name = object.optString("name");
+                                            MarkerOptions markerOpts =
+                                                    new MarkerOptions().position(new LatLng(p.getLocation().getLatitude(), p
+                                                            .getLocation().getLongitude()));
+                                            // allow markers to only be draggable if you created them. Color according to type.
+                                            if (p.getEvent().equals("USER")) {
+                                                markerOpts =
+                                                        markerOpts.draggable(false).title(p.getText())
+                                                                .icon(BitmapDescriptorFactory.defaultMarker(
+                                                                        BitmapDescriptorFactory.HUE_VIOLET));
+                                            } else if (p.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && !p.getIsEvent()) {
+                                                markerOpts =
+                                                        markerOpts.draggable(true).title(p.getText())
+                                                                .snippet(name)
+                                                                .icon(BitmapDescriptorFactory.defaultMarker(
+                                                                        BitmapDescriptorFactory.HUE_GREEN));
+                                            } else if (p.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername()) && p.getIsEvent()) {
+                                                markerOpts =
+                                                        markerOpts.draggable(true).title(curEvent.getDescription())
+                                                                .snippet(name)
+                                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                                            } else if (p.getIsEvent()) {
+                                                markerOpts =
+                                                        markerOpts.draggable(false).title(curEvent.getDescription())
+                                                                .snippet(name)
+                                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.event));
+                                            } else {
+                                                markerOpts =
+                                                        markerOpts.draggable(false).title(p.getText())
+                                                                .snippet(name)
+                                                                .icon(BitmapDescriptorFactory.defaultMarker(
+                                                                        BitmapDescriptorFactory.HUE_RED));
+                                            }
+                                            //     }
+                                            // 7
+                                            Marker marker = mapFragment.getMap().addMarker(markerOpts);
+                                            mapMarkers.put(p.getObjectId(), marker);
+                                        } catch (Exception e) {
                                         }
-                                        //     }
-                                        // 7
-                                        Marker marker = mapFragment.getMap().addMarker(markerOpts);
-                                        mapMarkers.put(p.getObjectId(), marker);
-                                    } catch (Exception e) {}
-                                }
-                            });
-                    Bundle parameters = new Bundle();
-                    parameters.putString("fields", "name");
-                    request.setParameters(parameters);
-                    request.executeAsync();
+                                    }
+                                });
+                        Bundle parameters = new Bundle();
+                        parameters.putString("fields", "name");
+                        request.setParameters(parameters);
+                        request.executeAsync();
+                    }
                 }
 
                 // make the marker for the event
