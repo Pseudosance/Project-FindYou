@@ -41,8 +41,17 @@ public class EventListAdapter extends ArrayAdapter {
         }
 
         // Fill data
+        // Title
         eventView.getTitleTextView().setText(event.getTitle());
-        eventView.getDescriptionTextView().setText(event.getDescription());
+        // Description
+        String description = event.getDescription();
+        eventView.getDescriptionTextView().setText(description);
+        if (description == null || description.length() == 0) {
+            eventView.getDescriptionTextView().setVisibility(View.GONE);
+        } else {
+            eventView.getDescriptionTextView().setVisibility(View.VISIBLE);
+        }
+        // Going
         final EventListItemHolder fEventView = eventView;
         event.getJoined(new FindCallback<ParseUser>() {
             @Override

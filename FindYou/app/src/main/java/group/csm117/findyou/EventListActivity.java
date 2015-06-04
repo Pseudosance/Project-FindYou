@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -52,6 +54,8 @@ public class EventListActivity extends ActionBarActivity
 
         mListAdapter = new EventListAdapter(this, R.layout.event_list_item, mEvents);
         mRefreshWrapper.getListView().setAdapter(mListAdapter);
+
+        registerForContextMenu(mRefreshWrapper.getListView());
 
         // Load data
         mRefreshWrapper.setRefreshing(true);
@@ -161,41 +165,49 @@ public class EventListActivity extends ActionBarActivity
     public void onItemClick(AdapterView<?> parent, View view, final int cellPosition, long id) {
         final int position = cellPosition - 1;
         final Event event = mEvents.get(position);
+        // go to event view
+        Intent intent = new Intent(EventListActivity.this, MainActivity.class);
+        intent.putExtra("event", event.getObjectId());
+        startActivity(intent);
+    }
 
-        // TODO: go to edit view
-        // For now this helps with testing
-        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle("Manage event");
-        alertDialog.setCancelable(true);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case AlertDialog.BUTTON_POSITIVE: // Un-accept
-                        event.leave();
-                        event.invite(ParseUser.getCurrentUser());
-                        event.saveInBackground();
-                        mEvents.remove(position);
-                        mListAdapter.notifyDataSetChanged();
-                        break;
-                    case AlertDialog.BUTTON_NEGATIVE: // Delete
-                        event.deleteInBackground();
-                        mEvents.remove(position);
-                        mListAdapter.notifyDataSetChanged();
-                        break;
-                    case AlertDialog.BUTTON_NEUTRAL:
-                        Intent intent = new Intent(EventListActivity.this, MainActivity.class);
-                        intent.putExtra("event", event.getObjectId());
-                        startActivity(intent);
-                        break;
-                }
-                dialog.dismiss();
-            }
-        };
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Un-accept", listener);
-        if (event.getCreator().hasSameId(ParseUser.getCurrentUser())) {
-            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Delete", listener);
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_event_list_item, menu);
+
+        int position = ((AdapterView.AdapterContextMenuInfo)menuInfo).position - 1;
+        Event event = mEvents.get(position);
+        boolean isCreator = event.getCreator().hasSameId(ParseUser.getCurrentUser());
+
+        // Creator can delete but not leave. Inverse for others.
+        menu.findItem(R.id.delete).setVisible(isCreator);
+        menu.findItem(R.id.leave).setVisible(!isCreator);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+        int position = info.position - 1;
+        Event event = mEvents.get(position);
+        switch (item.getItemId()) {
+            case R.id.leave:
+                event.leave();
+                event.invite(ParseUser.getCurrentUser());
+                event.saveInBackground();
+                mEvents.remove(position);
+                mListAdapter.notifyDataSetChanged();
+                return true;
+            case R.id.delete:
+                event.deleteInBackground();
+                mEvents.remove(position);
+                mListAdapter.notifyDataSetChanged();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "View", listener);
-        alertDialog.show();
     }
 }
